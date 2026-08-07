@@ -1,0 +1,150 @@
+{% extends 'leasing/layout.html' %}
+{% from 'leasing/_macros.html' import stat, badge, invoice_badge, empty %}
+
+{% block page_subtitle %}<p class="page-subtitle">Customers, leases and collections · {{ today|day }}</p>{% endblock %}
+
+{% block page_actions %}
+<a href="{{ url_for('customers.create') }}" class="btn btn-light">New Customer</a>
+<a href="{{ url_for('contracts.create') }}" class="btn btn-primary">New Lease</a>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xl-3 col-sm-6 mb-4">{{ stat('Collected this month', metrics.revenue_mtd|money, 'Payments logged since the 1st', 'primary', 'fa-sack-dollar', url_for('billing.payments')) }}</div>
+    <div class="col-xl-3 col-sm-6 mb-4">{{ stat('Outstanding', metrics.outstanding|money, metrics.overdue_count ~ ' overdue invoices', 'danger', 'fa-file-invoice-dollar', url_for('billing.invoices', status='outstanding')) }}</div>
+    <div class="col-xl-3 col-sm-6 mb-4">{{ stat('Active leases', metrics.active_contracts, metrics.expiring ~ ' up for renewal', 'warning', 'fa-file-signature', url_for('contracts.index', status='active')) }}</div>
+    <div class="col-xl-3 col-sm-6 mb-4">{{ stat('Machines available', available_machines, 'Ready to place with a customer', 'info', 'fa-print', url_for('machines.index', status='in_stock')) }}</div>
+</div>
+
+<div class="row">
+    <div class="col-xl-8 mb-4">
+        <div class="card h-100">
+            <div class="card-header border-0 pb-0">
+                <div>
+                    <h4 class="card-title mb-1">Billing performance</h4>
+                    <small class="text-muted-2">Invoiced against collected, last six months</small>
+                </div>
+            </div>
+            <div class="card-body"><div id="revenueChart"></div></div>
+        </div>
+    </div>
+    <div class="col-xl-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header border-0 pb-2">
+                <h4 class="card-title mb-0">Needs a meter reading</h4>
+                <a href="{{ url_for('machines.readings') }}" class="btn btn-sm btn-light">Readings</a>
+            </div>
+            <div class="card-body pt-0">
+                {% if missed_readings %}
+                <table class="table data-table mb-0">
+                    <tbody>
+                    {% for contract, last in missed_readings %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('contracts.detail', contract_id=contract.id) }}" class="row-title">{{ contract.customer.company_name }}</a>
+                            <span class="row-sub">{{ contract.reference }} · {{ contract.machine.asset_tag }}</span>
+                        </td>
+                        <td class="numeric">{{ badge(last.reading_date|day if last else 'never', 'danger') }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}{{ empty('Every per-copy lease is up to date.') }}{% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-7 mb-4">
+        <div class="card h-100 table-card">
+            <div class="card-header border-0 pb-2">
+                <h4 class="card-title mb-0">Money owed</h4>
+                <a href="{{ url_for('billing.invoices', status='outstanding') }}" class="btn btn-sm btn-light">All invoices</a>
+            </div>
+            <div class="card-body pt-0 table-responsive">
+                {% if outstanding %}
+                <table class="table data-table mb-0">
+                    <thead><tr><th>Invoice</th><th>Customer</th><th>Due</th><th class="numeric">Balance</th><th></th></tr></thead>
+                    <tbody>
+                    {% for invoice in outstanding %}
+                    <tr>
+                        <td><a href="{{ url_for('billing.detail', invoice_id=invoice.id) }}" class="row-title">{{ invoice.number }}</a></td>
+                        <td>{{ invoice.customer.company_name }}</td>
+                        <td>{{ invoice.due_date|day }}{% if invoice.days_overdue %}<span class="row-sub text-danger">{{ invoice.days_overdue }} days late</span>{% endif %}</td>
+                        <td class="numeric">{{ invoice.balance|money }}</td>
+                        <td class="numeric">{{ invoice_badge(invoice) }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}{{ empty('Nothing outstanding — every invoice is settled.') }}{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-5 mb-4">
+        <div class="card mb-4">
+            <div class="card-header border-0 pb-2">
+                <h4 class="card-title mb-0">Renewals due</h4>
+                <a href="{{ url_for('contracts.index', view='expiring') }}" class="btn btn-sm btn-light">All</a>
+            </div>
+            <div class="card-body pt-0">
+                {% if expiring %}
+                <table class="table data-table mb-0">
+                    <tbody>
+                    {% for contract in expiring %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('contracts.detail', contract_id=contract.id) }}" class="row-title">{{ contract.customer.company_name }}</a>
+                            <span class="row-sub">{{ contract.reference }} · ends {{ contract.end_date|day }}</span>
+                        </td>
+                        <td class="numeric">
+                            {% if contract.days_to_expiry < 0 %}{{ badge('Expired', 'danger') }}
+                            {% else %}{{ badge(contract.days_to_expiry ~ 'd', 'warning') }}{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}{{ empty('No renewals in the next 30 days.') }}{% endif %}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header border-0 pb-2"><h4 class="card-title mb-0">Recently onboarded</h4></div>
+            <div class="card-body pt-0">
+                {% if new_leases %}
+                <ul class="timeline-simple">
+                    {% for contract in new_leases %}
+                    <li>
+                        <a href="{{ url_for('contracts.detail', contract_id=contract.id) }}" class="row-title">{{ contract.customer.company_name }}</a>
+                        <span class="row-sub">{{ contract.reference }} · {{ contract.billing_type_label }} · started {{ contract.start_date|day }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}{{ empty('No new leases in the last 30 days.', url_for('contracts.create'), 'Create one') }}{% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block additional_js %}
+<script src="{{ url_for('static', filename='w3admin/vendor/apexchart/apexchart.js') }}"></script>
+<script>
+new ApexCharts(document.querySelector('#revenueChart'), {
+    chart: { type: 'bar', height: 320, toolbar: { show: false } },
+    series: [
+        { name: 'Invoiced', data: {{ series | map(attribute=2) | map('float') | list | tojson }} },
+        { name: 'Collected', data: {{ series | map(attribute=1) | map('float') | list | tojson }} }
+    ],
+    colors: ['#c8cfe0', 'var(--primary)'],
+    plotOptions: { bar: { borderRadius: 6, columnWidth: '45%' } },
+    dataLabels: { enabled: false },
+    legend: { position: 'top', horizontalAlign: 'right' },
+    xaxis: { categories: {{ series | map(attribute=0) | list | tojson }} },
+    grid: { borderColor: 'rgba(0,0,0,0.06)' }
+}).render();
+</script>
+{% endblock %}

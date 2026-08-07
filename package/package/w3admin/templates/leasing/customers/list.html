@@ -1,0 +1,76 @@
+{% extends 'leasing/layout.html' %}
+{% from 'leasing/_macros.html' import badge, empty %}
+
+{% block page_subtitle %}<p class="page-subtitle">{{ customers|length }} customer{{ '' if customers|length == 1 else 's' }} matching this view</p>{% endblock %}
+
+{% block page_actions %}
+{% if current_user.is_admin or current_user.is_sales %}
+<a href="{{ url_for('customers.create') }}" class="btn btn-primary">New Customer</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="card table-card">
+    <div class="card-body">
+        <form class="row g-2 align-items-end filter-bar mb-3" method="get">
+            <div class="col-md-5">
+                <div class="input-group search-area">
+                    <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                    <input type="text" name="q" value="{{ search }}" class="form-control" placeholder="Company, contact, code, phone or city…">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select name="status" class="form-control">
+                    <option value="">All statuses</option>
+                    {% for s in statuses %}
+                    <option value="{{ s }}" {% if status == s %}selected{% endif %}>{{ s|title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-primary" type="submit">Filter</button>
+                <a href="{{ url_for('customers.index') }}" class="btn btn-light">Reset</a>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            {% if customers %}
+            <table class="table data-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Customer</th>
+                        <th>Contact</th>
+                        <th>Location</th>
+                        <th class="numeric">Machines</th>
+                        <th class="numeric">Owed</th>
+                        <th class="numeric">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for customer in customers %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('customers.detail', customer_id=customer.id) }}" class="row-title">{{ customer.company_name }}</a>
+                        <span class="row-sub">{{ customer.code }}</span>
+                    </td>
+                    <td>
+                        {{ customer.contact_name or '—' }}
+                        <span class="row-sub">{{ customer.phone or customer.email or '' }}</span>
+                    </td>
+                    <td>{{ customer.city or '—' }}{% if customer.branch %}<span class="row-sub">{{ customer.branch }}</span>{% endif %}</td>
+                    <td class="numeric">{{ customer.active_contracts|length }}</td>
+                    <td class="numeric">{{ customer.outstanding_balance|money }}</td>
+                    <td class="numeric">
+                        {{ badge(customer.status|title, {'active':'success','prospect':'info','inactive':'secondary'}.get(customer.status, 'secondary')) }}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            {{ empty('No customers match this filter.', url_for('customers.create') if current_user.is_admin or current_user.is_sales else None, 'Add the first customer') }}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

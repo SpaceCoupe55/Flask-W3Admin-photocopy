@@ -1,0 +1,233 @@
+.card-use-box{
+	text-align:center;
+	.crd-bx-img{
+		position: relative;
+		width: 100px;
+        margin: auto;
+		.active{
+			width: 15px;
+			height: 15px;
+			background: $success;
+			border-radius: 50%;
+			left: 6rem;
+			position: absolute;
+			bottom: 0.4rem;
+			&.deactive{
+				background:$danger;
+			}
+		}
+		
+		img{
+			border: 7px solid rgba(62, 95, 206, 0.08);
+		}
+	}
+}
+.card__info{
+	display:flex;
+	align-items:center;
+	display: flex;
+    align-items: center;
+    justify-content: center;
+	li{
+		.card__info__stats{
+			display:block;
+			color:var(--primary);
+			font-size:1.2rem;
+			font-weight:500;
+			padding: 0 30px;
+			@include respond ('laptop'){
+				padding: 0 25px;
+			}
+		}
+	}
+}
+.post-pos{
+   text-align: center;
+	margin: 18px;
+	.card__info__stats{
+		color:var(--primary);
+		
+	}
+	li{
+		margin-bottom:10px;
+	}
+}
+.user-m-tabe{
+	.nav-link{
+		padding: 3px 8px;
+	}
+	margin-top: 0px;
+}
+.personal-info{
+	li{
+		font-size: 0.9rem;
+		font-weight: 500;
+		padding: 12px 20px;
+		&:hover{
+			background: var(--rgba-primary-1);
+		}
+	}
+}
+.action-button{
+	.btn.btn-icon-xxs{
+		padding: 0.075rem 0.2375rem;
+		i{
+			transform: scale(0.8);
+		}
+	}
+}
+.all_user{
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	padding: 10px 20px;
+    background: var(--rgba-primary-1);
+}
+.all_user1{
+	display: flex;
+	justify-content: space-between;
+	padding: 9px 30px;
+	.member{
+		margin-right: 4rem;	
+		.heading{
+			padding: 0 10px;
+		}
+		
+	}
+}
+.right-check{
+	.custom-checkbox{
+		margin-right: 5rem;
+		@include respond ('phone'){
+			margin-right: 1rem;
+		}
+	}
+}
+.manage{
+	padding: 0 30px;
+	margin-top: -10px;
+}
+.role-tble{
+	tbody{
+		tr{
+			td{
+				&:not(:first-child){
+					.custom-checkbox{
+						display: flex;
+						justify-content: end;
+					}
+				}	
+			}
+		}
+	}
+	&.table{
+		tbody tr td{
+			padding: 0.4375rem 0.625rem;
+			border: 0;
+		}
+		thead tr th{
+			padding: 0.4375rem 0.625rem;
+		}	
+	}	
+}
+
+// User Profile
+
+.c-details{
+	ul{
+		li{
+			border-bottom: 1px solid $border;
+			padding: 10px 0;	
+			p{
+				color: black;
+				margin: 0;
+			}
+
+		}
+	}
+}
+.c-social{
+	display: flex;
+	margin-top: 15px;
+	li{
+		a{
+			padding: 5px 10px;
+			margin: 0 7px;
+			border-radius: $radius-xs;
+			&:first-child{
+				margin-left: 0;
+			}
+		}
+	}
+}
+.c-busiess{
+	.avatar{
+		height: 60px;
+		width: 60px;
+		margin-right: 10px;
+	}
+}
+.c-card-details{
+	ul{
+		li{
+			display: flex;
+			padding: 6px 0px;
+			h6{
+				margin-left: 5px;
+				margin-bottom: 0;
+				font-size: 13px;
+			}
+		}
+	}
+}
+.c-work{
+	display: flex;
+    align-items: center;
+    justify-content: space-between;
+	
+	.c-task{
+		p{
+			margin-bottom: 0;
+			color: white;
+			display: flex;
+            align-items: center;
+		}
+		span{
+			color: white;
+		}
+		padding: 7px 20px;
+		border-radius: $radius-xs;
+		margin: 0 6px;
+		@include respond ('phone'){
+			padding: 7px 12px;
+		}
+		&:first-child{
+			margin-left:0;
+		}
+	}
+}
+.c-primium{
+	li{
+		display: flex;
+		justify-content: space-between;
+		padding: 6px 0px;
+		h6{
+			margin-bottom: 0;	
+			font-size: 13px;
+		}
+	}
+}
+.c-status{
+	i{
+		transform: scale(0.5);
+		margin-right: 5px;
+	}
+}
+
+//blog-data
+
+@include custommq($max: 1400px , $min:1200px) {
+	.contect-card{
+		width:33.33%;
+	}
+}

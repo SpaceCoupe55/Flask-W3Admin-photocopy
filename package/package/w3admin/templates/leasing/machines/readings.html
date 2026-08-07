@@ -1,0 +1,92 @@
+{% extends 'leasing/layout.html' %}
+{% from 'leasing/_macros.html' import csrf, badge, empty, select %}
+
+{% block page_subtitle %}<p class="page-subtitle">Copy counts drive pay-per-copy billing — log every visit</p>{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xl-4">
+        <div class="card">
+            <div class="card-header"><h4 class="card-title">New reading</h4></div>
+            <div class="card-body">
+                <form method="post" action="{{ url_for('machines.add_reading') }}">
+                    {{ csrf() }}
+                    {{ select('Machine', 'machine_id', machines|choices, machine_id, required=True, blank='— select machine —') }}
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label" for="reading_date">Date</label>
+                            <input type="date" class="form-control" id="reading_date" name="reading_date" value="{{ today }}" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label" for="source">Source</label>
+                            <select class="form-control" id="source" name="source">
+                                {% for s in sources %}<option value="{{ s }}">{{ s|title }}</option>{% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label" for="mono_count">Mono counter</label>
+                            <input type="number" min="0" class="form-control" id="mono_count" name="mono_count" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label" for="colour_count">Colour counter</label>
+                            <input type="number" min="0" class="form-control" id="colour_count" name="colour_count" value="0">
+                        </div>
+                    </div>
+                    <div class="mb-3"><input type="text" class="form-control" name="notes" placeholder="Note (optional)"></div>
+                    <button class="btn btn-primary w-100">Save reading</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><h4 class="card-title">Overdue readings</h4></div>
+            <div class="card-body">
+                {% if stale %}
+                <ul class="timeline-simple">
+                    {% for contract, last in stale %}
+                    <li>
+                        <a href="{{ url_for('machines.detail', machine_id=contract.machine_id) }}" class="row-title">{{ contract.machine.asset_tag }}</a>
+                        <span class="row-sub">{{ contract.customer.company_name }} · last read {{ last.reading_date|day if last else 'never' }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}<p class="text-muted-2 mb-0">Every per-copy lease has a recent reading.</p>{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-8">
+        <div class="card table-card">
+            <div class="card-header">
+                <h4 class="card-title">Reading history</h4>
+                <form method="get" class="d-flex gap-2">
+                    <select name="machine" class="form-control form-control-sm" onchange="this.form.submit()">
+                        <option value="">All machines</option>
+                        {% for m in machines %}<option value="{{ m.id }}" {% if machine_id == m.id|string %}selected{% endif %}>{{ m.asset_tag }}</option>{% endfor %}
+                    </select>
+                </form>
+            </div>
+            <div class="card-body table-responsive">
+                {% if readings %}
+                <table class="table data-table mb-0">
+                    <thead><tr><th>Date</th><th>Machine</th><th>Customer</th><th class="numeric">Mono</th><th class="numeric">Colour</th><th>Source</th><th class="numeric">Billed</th></tr></thead>
+                    <tbody>
+                    {% for reading in readings %}
+                    <tr>
+                        <td>{{ reading.reading_date|day }}<span class="row-sub">{{ reading.recorded_by.name if reading.recorded_by else '—' }}</span></td>
+                        <td><a href="{{ url_for('machines.detail', machine_id=reading.machine_id) }}" class="row-title">{{ reading.machine.asset_tag }}</a></td>
+                        <td>{{ reading.machine.customer.company_name if reading.machine.customer else '—' }}</td>
+                        <td class="numeric">{{ reading.mono_count|qty }}</td>
+                        <td class="numeric">{{ reading.colour_count|qty }}</td>
+                        <td>{{ reading.source|title }}</td>
+                        <td class="numeric">{{ badge('Billed', 'success') if reading.billed else badge('Pending', 'secondary') }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}{{ empty('No meter readings recorded yet.') }}{% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

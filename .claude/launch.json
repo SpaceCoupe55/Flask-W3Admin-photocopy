@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "leasing-app",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["package/package/main.py"],
+      "port": 5000
+    }
+  ]
+}

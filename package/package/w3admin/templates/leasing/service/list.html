@@ -1,0 +1,72 @@
+{% extends 'leasing/layout.html' %}
+{% from 'leasing/_macros.html' import ticket_badge, badge, empty %}
+
+{% block page_subtitle %}<p class="page-subtitle">{{ tickets|length }} ticket{{ '' if tickets|length == 1 else 's' }}{% if current_user.is_technician %} assigned to you{% endif %}</p>{% endblock %}
+
+{% block page_actions %}
+<a href="{{ url_for('service.schedule') }}" class="btn btn-light">Schedule</a>
+<a href="{{ url_for('service.create') }}" class="btn btn-primary">Log Request</a>
+{% endblock %}
+
+{% block content %}
+<div class="card table-card">
+    <div class="card-body">
+        <form class="row g-2 align-items-end filter-bar mb-3" method="get">
+            <div class="col-md-3">
+                <div class="input-group search-area">
+                    <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                    <input type="text" name="q" value="{{ search }}" class="form-control" placeholder="Reference, issue or customer…">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <select name="status" class="form-control">
+                    <option value="">All statuses</option>
+                    <option value="open" {% if status == 'open' %}selected{% endif %}>All open</option>
+                    {% for s in statuses %}<option value="{{ s }}" {% if status == s %}selected{% endif %}>{{ status_labels[s] }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="priority" class="form-control">
+                    <option value="">Any priority</option>
+                    {% for p in priorities %}<option value="{{ p }}" {% if priority == p %}selected{% endif %}>{{ p|title }}</option>{% endfor %}
+                </select>
+            </div>
+            {% if not current_user.is_technician %}
+            <div class="col-md-2">
+                <select name="technician" class="form-control">
+                    <option value="">Any technician</option>
+                    {% for t in technicians %}<option value="{{ t.id }}" {% if technician == t.id|string %}selected{% endif %}>{{ t.name }}</option>{% endfor %}
+                </select>
+            </div>
+            {% endif %}
+            <div class="col-auto">
+                <button class="btn btn-primary" type="submit">Filter</button>
+                <a href="{{ url_for('service.tickets') }}" class="btn btn-light">Reset</a>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            {% if tickets %}
+            <table class="table data-table mb-0">
+                <thead><tr><th>Ticket</th><th>Customer / machine</th><th>Issue</th><th>Technician</th><th>Scheduled</th><th class="numeric">Priority</th><th class="numeric">Status</th></tr></thead>
+                <tbody>
+                {% for ticket in tickets %}
+                <tr>
+                    <td><a href="{{ url_for('service.detail', ticket_id=ticket.id) }}" class="row-title">{{ ticket.reference }}</a>
+                        <span class="row-sub">{{ ticket.created_at|day }}</span></td>
+                    <td>{{ ticket.customer.company_name }}
+                        <span class="row-sub">{{ ticket.machine.asset_tag if ticket.machine else 'no machine' }}</span></td>
+                    <td>{{ ticket.title|truncate(46) }}</td>
+                    <td>{{ ticket.technician.name if ticket.technician else 'Unassigned' }}</td>
+                    <td>{{ ticket.scheduled_for|datetime if ticket.scheduled_for else '—' }}</td>
+                    <td class="numeric">{{ badge(ticket.priority|title, ticket.priority_class) }}</td>
+                    <td class="numeric">{{ ticket_badge(ticket) }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% else %}{{ empty('No tickets match this filter.', url_for('service.create'), 'Log a request') }}{% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

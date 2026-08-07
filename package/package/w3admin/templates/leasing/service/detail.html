@@ -1,0 +1,165 @@
+{% extends 'leasing/layout.html' %}
+{% from 'leasing/_macros.html' import csrf, ticket_badge, badge, empty %}
+
+{% block page_subtitle %}
+<p class="page-subtitle">{{ ticket.customer.company_name }}{% if ticket.machine %} · {{ ticket.machine.display }}{% endif %} · logged {{ ticket.created_at|datetime }}</p>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xl-4">
+        <div class="card">
+            <div class="card-header"><h4 class="card-title">{{ ticket.reference }}</h4>{{ ticket_badge(ticket) }}</div>
+            <div class="card-body">
+                <dl class="detail-list">
+                    <dt>Issue</dt><dd>{{ ticket.title }}</dd>
+                    <dt>Priority</dt><dd>{{ badge(ticket.priority|title, ticket.priority_class) }}</dd>
+                    <dt>Customer</dt><dd><a href="{{ url_for('customers.detail', customer_id=ticket.customer_id) }}">{{ ticket.customer.company_name }}</a>
+                        <span class="row-sub">{{ ticket.customer.phone or ticket.customer.email or '' }}</span></dd>
+                    <dt>Machine</dt>
+                    <dd>{% if ticket.machine %}<a href="{{ url_for('machines.detail', machine_id=ticket.machine_id) }}">{{ ticket.machine.display }}</a>{% else %}Not machine specific{% endif %}</dd>
+                    <dt>Technician</dt><dd>{{ ticket.technician.name if ticket.technician else 'Unassigned' }}</dd>
+                    <dt>Scheduled</dt><dd>{{ ticket.scheduled_for|datetime if ticket.scheduled_for else 'Not scheduled' }}</dd>
+                    <dt>Logged by</dt><dd>{{ ticket.logged_by.name if ticket.logged_by else '—' }}</dd>
+                    {% if ticket.resolved_at %}<dt>Resolved</dt><dd>{{ ticket.resolved_at|datetime }}</dd>{% endif %}
+                </dl>
+                {% if ticket.description %}
+                <h6 class="text-muted-2">Details</h6>
+                <p class="mb-0">{{ ticket.description }}</p>
+                {% endif %}
+                {% if ticket.resolution %}
+                <div class="alert alert-success mt-3 mb-0"><strong>Resolution:</strong> {{ ticket.resolution }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if can_manage %}
+        <div class="card">
+            <div class="card-header"><h4 class="card-title">Assign &amp; schedule</h4></div>
+            <div class="card-body">
+                <form method="post" action="{{ url_for('service.assign', ticket_id=ticket.id) }}">
+                    {{ csrf() }}
+                    <div class="mb-3">
+                        <label class="form-label" for="assigned_to_id">Technician</label>
+                        <select class="form-control" id="assigned_to_id" name="assigned_to_id" required>
+                            <option value="">— select technician —</option>
+                            {% for t in technicians %}
+                            <option value="{{ t.id }}" {% if ticket.assigned_to_id == t.id %}selected{% endif %}>{{ t.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="scheduled_for">Visit date &amp; time</label>
+                        <input type="datetime-local" class="form-control" id="scheduled_for" name="scheduled_for"
+                               value="{{ ticket.scheduled_for.strftime('%Y-%m-%dT%H:%M') if ticket.scheduled_for else '' }}">
+                    </div>
+                    <button class="btn btn-primary w-100">Save assignment</button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-xl-8">
+        {% if ticket.status != 'closed' %}
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header"><h4 class="card-title">Update status</h4></div>
+                    <div class="card-body">
+                        <form method="post" action="{{ url_for('service.update_status', ticket_id=ticket.id) }}">
+                            {{ csrf() }}
+                            <div class="mb-3">
+                                <label class="form-label" for="status">Status</label>
+                                <select class="form-control" id="status" name="status">
+                                    {% for s in statuses %}
+                                    <option value="{{ s }}" {% if ticket.status == s %}selected{% endif %}>{{ status_labels[s] }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="resolution">Resolution notes</label>
+                                <textarea class="form-control" id="resolution" name="resolution" rows="3"
+                                          placeholder="Required when marking the ticket resolved">{{ ticket.resolution or '' }}</textarea>
+                            </div>
+                            <button class="btn btn-primary w-100">Save update</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header"><h4 class="card-title">Log parts used</h4></div>
+                    <div class="card-body">
+                        <form method="post" action="{{ url_for('service.log_parts', ticket_id=ticket.id) }}">
+                            {{ csrf() }}
+                            <div class="mb-3">
+                                <label class="form-label" for="part_id">Part / consumable</label>
+                                <select class="form-control" id="part_id" name="part_id" required>
+                                    <option value="">— select item —</option>
+                                    {% for part in parts %}
+                                    <option value="{{ part.id }}" {% if part.quantity_in_stock == 0 %}disabled{% endif %}>
+                                        {{ part.name }} ({{ part.quantity_in_stock }} in stock)
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="quantity">Quantity</label>
+                                <input type="number" min="1" value="1" class="form-control" id="quantity" name="quantity" required>
+                            </div>
+                            <button class="btn btn-primary w-100">Log usage</button>
+                            <small class="text-muted-2 d-block mt-2">Stock is deducted automatically when usage is logged.</small>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="card table-card">
+            <div class="card-header"><h4 class="card-title">Parts used on this job</h4>
+                <span class="text-muted-2">Total cost {{ ticket.parts_cost|money }}</span>
+            </div>
+            <div class="card-body table-responsive">
+                {% if ticket.part_usages %}
+                <table class="table data-table mb-0">
+                    <thead><tr><th>Item</th><th>Logged</th><th>By</th><th class="numeric">Qty</th><th class="numeric">Cost</th></tr></thead>
+                    <tbody>
+                    {% for usage in ticket.part_usages %}
+                    <tr>
+                        <td><span class="row-title">{{ usage.part.name }}</span><span class="row-sub">{{ usage.part.sku }}</span></td>
+                        <td>{{ usage.used_at|datetime }}</td>
+                        <td>{{ usage.recorded_by.name if usage.recorded_by else '—' }}</td>
+                        <td class="numeric">{{ usage.quantity }}</td>
+                        <td class="numeric">{{ usage.line_cost|money }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}{{ empty('No parts logged against this ticket.') }}{% endif %}
+            </div>
+        </div>
+
+        {% if ticket.machine and ticket.machine.tickets|length > 1 %}
+        <div class="card table-card">
+            <div class="card-header"><h4 class="card-title">Other jobs on this machine</h4></div>
+            <div class="card-body table-responsive">
+                <table class="table data-table mb-0">
+                    <tbody>
+                    {% for other in ticket.machine.tickets if other.id != ticket.id %}
+                    <tr>
+                        <td><a href="{{ url_for('service.detail', ticket_id=other.id) }}" class="row-title">{{ other.reference }}</a>
+                            <span class="row-sub">{{ other.created_at|day }} · {{ other.title|truncate(40) }}</span></td>
+                        <td class="numeric">{{ ticket_badge(other) }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

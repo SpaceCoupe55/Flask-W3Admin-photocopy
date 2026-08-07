@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="description" content="{{ app_name }} — photocopier leasing management system">
+    <meta name="format-detection" content="telephone=no">
+
+    <title>{{ page_title|default('Dashboard') }} · {{ app_name }}</title>
+
+    <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='w3admin/images/favicon.png') }}">
+    {% block additional_css %}{% endblock %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='w3admin/vendor/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='w3admin/css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='w3admin/css/leasing.css') }}">
+</head>
+<body>
+
+    <div id="preloader">
+        <div class="dz-ripple"><div></div><div></div></div>
+    </div>
+
+    <div id="main-wrapper">
+
+        {% include 'leasing/partials/nav_header.html' %}
+        {% include 'leasing/partials/header.html' %}
+        {% include 'leasing/partials/sidebar.html' %}
+
+        <div class="outer-body">
+            <div class="inner-body">
+                <div class="content-body">
+                    <div class="container-fluid">
+
+                        <div class="page-head d-flex flex-wrap align-items-center justify-content-between">
+                            <div>
+                                <h3 class="head-title mb-0">{{ page_title|default('Dashboard') }}</h3>
+                                {% block page_subtitle %}{% endblock %}
+                            </div>
+                            <div class="page-actions">{% block page_actions %}{% endblock %}</div>
+                        </div>
+
+                        {% include 'leasing/partials/flash.html' %}
+
+                        {% block content %}{% endblock %}
+                    </div>
+                </div>
+                <div class="footer">
+                    <div class="copyright">
+                        <p>{{ app_name }} · Leasing Management System — {{ now.year }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="{{ url_for('static', filename='w3admin/vendor/global/global.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='w3admin/vendor/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
+    {% block additional_js %}{% endblock %}
+    <script src="{{ url_for('static', filename='w3admin/js/custom.js') }}"></script>
+    <script src="{{ url_for('static', filename='w3admin/js/deznav-init.js') }}"></script>
+    <script>
+        // Confirm destructive / irreversible actions before they post.
+        document.querySelectorAll('form[data-confirm]').forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!window.confirm(form.dataset.confirm)) { event.preventDefault(); }
+            });
+        });
+    </script>
+</body>
+</html>

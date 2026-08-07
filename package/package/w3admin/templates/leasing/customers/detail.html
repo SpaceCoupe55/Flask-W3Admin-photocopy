@@ -1,0 +1,148 @@
+{% extends 'leasing/layout.html' %}
+{% from 'leasing/_macros.html' import csrf, badge, invoice_badge, ticket_badge, machine_badge, contract_badge, empty %}
+
+{% block page_subtitle %}<p class="page-subtitle">{{ customer.code }} · {{ customer.city or 'No location recorded' }}</p>{% endblock %}
+
+{% block page_actions %}
+{% if current_user.is_admin or current_user.is_sales %}
+<a href="{{ url_for('customers.edit', customer_id=customer.id) }}" class="btn btn-light">Edit</a>
+<a href="{{ url_for('service.create', customer=customer.id) }}" class="btn btn-light">Log Service Request</a>
+<a href="{{ url_for('contracts.create', customer=customer.id) }}" class="btn btn-primary">New Lease</a>
+{% else %}
+<a href="{{ url_for('service.create', customer=customer.id) }}" class="btn btn-primary">Log Service Request</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xl-4">
+        <div class="card">
+            <div class="card-header"><h4 class="card-title">Profile</h4>{{ badge(customer.status|title, {'active':'success','prospect':'info','inactive':'secondary'}.get(customer.status,'secondary')) }}</div>
+            <div class="card-body">
+                <dl class="detail-list">
+                    <dt>Contact</dt><dd>{{ customer.contact_name or '—' }}</dd>
+                    <dt>Phone</dt><dd>{{ customer.phone or '—' }}</dd>
+                    <dt>Email</dt><dd>{{ customer.email or '—' }}</dd>
+                    <dt>Address</dt><dd>{{ customer.address or '—' }}{% if customer.city %}, {{ customer.city }}{% endif %}</dd>
+                    {% if customer.branch %}<dt>Branch</dt><dd>{{ customer.branch }}</dd>{% endif %}
+                    <dt>Outstanding balance</dt><dd class="{{ 'text-danger' if customer.outstanding_balance > 0 }}">{{ customer.outstanding_balance|money }}</dd>
+                    <dt>On file since</dt><dd>{{ customer.created_at|day }}</dd>
+                </dl>
+                {% if customer.notes %}<p class="mb-0 text-muted-2">{{ customer.notes }}</p>{% endif %}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><h4 class="card-title">Communication log</h4></div>
+            <div class="card-body">
+                {% if current_user.is_admin or current_user.is_sales %}
+                <form method="post" action="{{ url_for('customers.log_communication', customer_id=customer.id) }}" class="mb-3">
+                    {{ csrf() }}
+                    <div class="mb-2">
+                        <select name="channel" class="form-control">
+                            <option value="call">Phone call</option>
+                            <option value="email">Email</option>
+                            <option value="visit">Site visit</option>
+                            <option value="whatsapp">WhatsApp</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-2"><textarea name="summary" rows="2" class="form-control" placeholder="What was discussed?"></textarea></div>
+                    <button class="btn btn-sm btn-primary">Add note</button>
+                </form>
+                {% endif %}
+                {% if customer.communications %}
+                <ul class="timeline-simple">
+                    {% for entry in customer.communications[:12] %}
+                    <li>
+                        <span class="row-title">{{ entry.channel|title }}</span>
+                        <span class="row-sub">{{ entry.happened_at|datetime }} · {{ entry.logged_by.name if entry.logged_by else 'system' }}</span>
+                        <p class="mb-0">{{ entry.summary }}</p>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}<p class="text-muted-2 mb-0">No contact history recorded yet.</p>{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-8">
+        <div class="card table-card">
+            <div class="card-header"><h4 class="card-title">Leases</h4>
+                {% if current_user.is_admin or current_user.is_sales %}<a href="{{ url_for('contracts.create', customer=customer.id) }}" class="btn btn-sm btn-light">Add lease</a>{% endif %}
+            </div>
+            <div class="card-body table-responsive">
+                {% if customer.contracts %}
+                <table class="table data-table mb-0">
+                    <thead><tr><th>Reference</th><th>Machine</th><th>Billing</th><th>Term</th><th class="numeric">Status</th></tr></thead>
+                    <tbody>
+                    {% for contract in customer.contracts %}
+                    <tr>
+                        <td><a href="{{ url_for('contracts.detail', contract_id=contract.id) }}" class="row-title">{{ contract.reference }}</a></td>
+                        <td>{{ contract.machine.asset_tag }}<span class="row-sub">{{ contract.machine.manufacturer }} {{ contract.machine.model }}</span></td>
+                        <td>{{ contract.billing_type_label }}
+                            <span class="row-sub">
+                                {% if contract.billing_type in ('flat', 'hybrid') %}{{ contract.flat_monthly_fee|money }}/mo{% endif %}
+                                {% if contract.charges_per_copy %}{{ contract.mono_rate|rate }}/copy{% endif %}
+                            </span>
+                        </td>
+                        <td>{{ contract.start_date|day }}<span class="row-sub">to {{ contract.end_date|day }}</span></td>
+                        <td class="numeric">{{ contract_badge(contract) }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}{{ empty('No leases yet for this customer.', url_for('contracts.create', customer=customer.id) if current_user.is_admin or current_user.is_sales else None, 'Create a lease') }}{% endif %}
+            </div>
+        </div>
+
+        <div class="card table-card">
+            <div class="card-header"><h4 class="card-title">Invoices</h4>
+                {% if current_user.is_admin or current_user.is_sales %}<a href="{{ url_for('billing.generate') }}" class="btn btn-sm btn-light">Generate</a>{% endif %}
+            </div>
+            <div class="card-body table-responsive">
+                {% if invoices %}
+                <table class="table data-table mb-0">
+                    <thead><tr><th>Invoice</th><th>Issued</th><th>Due</th><th class="numeric">Total</th><th class="numeric">Balance</th><th class="numeric">Status</th></tr></thead>
+                    <tbody>
+                    {% for invoice in invoices[:12] %}
+                    <tr>
+                        <td><a href="{{ url_for('billing.detail', invoice_id=invoice.id) }}" class="row-title">{{ invoice.number }}</a></td>
+                        <td>{{ invoice.issue_date|day }}</td>
+                        <td>{{ invoice.due_date|day }}</td>
+                        <td class="numeric">{{ invoice.total|money }}</td>
+                        <td class="numeric">{{ invoice.balance|money }}</td>
+                        <td class="numeric">{{ invoice_badge(invoice) }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}{{ empty('No invoices raised yet.') }}{% endif %}
+            </div>
+        </div>
+
+        <div class="card table-card">
+            <div class="card-header"><h4 class="card-title">Service tickets</h4>
+                <a href="{{ url_for('service.create', customer=customer.id) }}" class="btn btn-sm btn-light">Log request</a>
+            </div>
+            <div class="card-body table-responsive">
+                {% if customer.tickets %}
+                <table class="table data-table mb-0">
+                    <thead><tr><th>Ticket</th><th>Issue</th><th>Technician</th><th class="numeric">Status</th></tr></thead>
+                    <tbody>
+                    {% for ticket in customer.tickets[:10] %}
+                    <tr>
+                        <td><a href="{{ url_for('service.detail', ticket_id=ticket.id) }}" class="row-title">{{ ticket.reference }}</a><span class="row-sub">{{ ticket.created_at|day }}</span></td>
+                        <td>{{ ticket.title|truncate(46) }}</td>
+                        <td>{{ ticket.technician.name if ticket.technician else 'Unassigned' }}</td>
+                        <td class="numeric">{{ ticket_badge(ticket) }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}{{ empty('No service history.') }}{% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

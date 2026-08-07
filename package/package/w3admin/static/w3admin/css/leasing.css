@@ -1,0 +1,244 @@
+/* ------------------------------------------------------------------
+   Leasing management system — additions on top of the W3Admin theme.
+   Kept intentionally small: the base template supplies the design system,
+   this file only covers the components the business modules introduce.
+   ------------------------------------------------------------------ */
+
+.page-head {
+    margin-bottom: 1.25rem;
+    gap: 1rem;
+}
+
+.page-head .head-title {
+    margin-bottom: 0;
+}
+
+.page-head .page-subtitle {
+    color: #7e8a9a;
+    font-size: 0.875rem;
+    margin: 0.25rem 0 0;
+}
+
+.page-actions .btn + .btn {
+    margin-left: 0.5rem;
+}
+
+.flash-stack .alert {
+    border-radius: 0.75rem;
+}
+
+/* The business name is user-editable, so clamp it rather than let a long
+   name spill out of the fixed-width sidebar header. */
+.nav-header .brand-logo {
+    overflow: hidden;
+}
+
+.copytrack-brand {
+    color: #fff;
+    display: inline-block;
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-left: 0.6rem;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.user-initials {
+    align-items: center;
+    background: var(--primary);
+    color: #fff;
+    display: inline-flex;
+    font-weight: 600;
+    height: 44px;
+    justify-content: center;
+    width: 44px;
+}
+
+.alert-count {
+    font-size: 0.65rem;
+    left: 60%;
+    padding: 0.15rem 0.35rem;
+    position: absolute;
+    top: 10%;
+}
+
+/* Stat tiles ------------------------------------------------------- */
+
+.stat-card {
+    border: none;
+    position: relative;
+}
+
+.stat-card .icon-box {
+    align-items: center;
+    background: rgba(255, 255, 255, 0.55);
+    border-radius: 0.85rem;
+    display: flex;
+    height: 44px;
+    justify-content: center;
+    width: 44px;
+}
+
+.stat-card h3 {
+    font-size: 1.65rem;
+    margin-bottom: 0;
+}
+
+.text-muted-2 {
+    color: #7e8a9a !important;
+    font-size: 0.8rem;
+}
+
+/* Tables ----------------------------------------------------------- */
+
+.table-card .card-body {
+    padding-top: 0.5rem;
+}
+
+.table.data-table > :not(caption) > * > * {
+    padding: 0.75rem 0.85rem;
+    vertical-align: middle;
+}
+
+.table.data-table thead th {
+    color: #7e8a9a;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.table.data-table tbody tr:hover {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.table .row-title {
+    font-weight: 600;
+}
+
+.table .row-sub {
+    color: #7e8a9a;
+    display: block;
+    font-size: 0.78rem;
+}
+
+.numeric {
+    text-align: right;
+    white-space: nowrap;
+}
+
+/* Filter bar ------------------------------------------------------- */
+
+.filter-bar .form-control,
+.filter-bar .input-group-text {
+    background-color: #fff;
+}
+
+/* Detail pages ----------------------------------------------------- */
+
+.detail-list {
+    margin: 0;
+}
+
+.detail-list dt {
+    color: #7e8a9a;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.detail-list dd {
+    font-weight: 500;
+    margin-bottom: 0.9rem;
+}
+
+.timeline-simple {
+    border-left: 2px solid rgba(0, 0, 0, 0.08);
+    list-style: none;
+    margin: 0;
+    padding-left: 1.1rem;
+}
+
+.timeline-simple li {
+    padding-bottom: 1rem;
+    position: relative;
+}
+
+.timeline-simple li::before {
+    background: var(--primary);
+    border-radius: 50%;
+    content: "";
+    height: 9px;
+    left: -1.45rem;
+    position: absolute;
+    top: 0.35rem;
+    width: 9px;
+}
+
+.empty-state {
+    color: #9aa5b1;
+}
+
+/* Meter / billing helpers ------------------------------------------ */
+
+.meter-pill {
+    background: rgba(0, 0, 0, 0.04);
+    border-radius: 999px;
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0.15rem 0.6rem;
+}
+
+.invoice-total-table td {
+    border: none;
+    padding: 0.35rem 0.5rem;
+}
+
+/* Login ------------------------------------------------------------ */
+
+.login-role-hint {
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 0.75rem;
+    font-size: 0.82rem;
+    padding: 0.85rem 1rem;
+}
+
+.login-role-hint code {
+    background: transparent;
+    padding: 0;
+}
+
+/* Print ------------------------------------------------------------ */
+
+@media print {
+    .no-print,
+    .deznav,
+    .header,
+    .nav-header,
+    .footer {
+        display: none !important;
+    }
+
+    .content-body,
+    .outer-body,
+    .inner-body {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    body {
+        background: #fff;
+    }
+
+    .card {
+        border: none;
+        box-shadow: none;
+    }
+}

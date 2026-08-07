@@ -1,0 +1,33 @@
+{% extends 'leasing/layout.html' %}
+{% from 'leasing/_macros.html' import empty %}
+
+{% block page_subtitle %}<p class="page-subtitle">{{ payments|length }} payment{{ '' if payments|length == 1 else 's' }} · {{ total|money }} received</p>{% endblock %}
+
+{% block page_actions %}
+<a href="{{ url_for('reports.revenue_csv') }}" class="btn btn-light">Export CSV</a>
+{% endblock %}
+
+{% block content %}
+<div class="card table-card">
+    <div class="card-body table-responsive">
+        {% if payments %}
+        <table class="table data-table mb-0">
+            <thead><tr><th>Date</th><th>Invoice</th><th>Customer</th><th>Method</th><th>Reference</th><th>Recorded by</th><th class="numeric">Amount</th></tr></thead>
+            <tbody>
+            {% for payment in payments %}
+            <tr>
+                <td>{{ payment.paid_on|day }}</td>
+                <td><a href="{{ url_for('billing.detail', invoice_id=payment.invoice_id) }}" class="row-title">{{ payment.invoice.number }}</a></td>
+                <td>{{ payment.invoice.customer.company_name }}</td>
+                <td>{{ payment.method_label }}</td>
+                <td>{{ payment.reference or '—' }}</td>
+                <td>{{ payment.recorded_by.name if payment.recorded_by else '—' }}</td>
+                <td class="numeric">{{ payment.amount|money }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}{{ empty('No payments recorded yet.') }}{% endif %}
+    </div>
+</div>
+{% endblock %}

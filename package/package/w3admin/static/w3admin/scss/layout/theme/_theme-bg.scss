@@ -1,0 +1,709 @@
+:root{
+	--nav-headbg: #FFFFFF;
+	--sidebar-bg: #FFFFFF;
+	// --headerbg: #C7EBFC;
+	--headerbg: #FFFFFF;
+}
+
+//background for nav header
+@each $name, $color in $theme_backgrounds {
+	[data-nav-headerbg="#{$name}"][data-theme-version="dark"],
+    [data-nav-headerbg="#{$name}"] {
+        @if $name != "color_1"  {
+			--nav-headbg: #{$color};
+			.nav-header{
+				.brand-logo{
+					.logo-abbr{
+						path{
+						&.react-w,
+						&.w3{
+							fill:$white;
+						}
+						
+					}	
+				}
+					.brand-title{
+						path{
+							fill:$white;
+						}
+					}
+				}
+				.hamburger .line{
+					background:$black;
+				}
+			}
+			/* .nav-control{
+				background-color:transparent;
+			} */
+			//special work for color
+			/* &[data-nav-headerbg="color_8"]{
+				.nav-header{
+					.brand-logo{
+						.brand-title{
+							path{
+								fill:$black;		
+							}
+							tspan{
+								fill:$black;	
+							}
+						}	
+					}
+					.hamburger .line{
+						background:$black;
+					}
+				}
+			} */
+			
+		}
+	}
+}
+//background for nav header
+@each $name, $color in $theme_backgrounds{
+	#sidebar_#{$name} + label{
+        @if $name != "color_1"{
+			background-color: #{darken($color: $color, $amount: 40%)} !important;
+		}
+	}
+}
+//background for nav header
+@each $name, $color in $theme_backgrounds {
+	[data-sidebarbg="#{$name}"][data-theme-version="dark"],
+    [data-sidebarbg="#{$name}"] {
+        @if $name != "color_1"  {
+			--sidebar-bg: #{darken($color: $color, $amount: 40%)};
+			--nav-headbg: #{darken($color: $color, $amount: 40%)};
+			--headerbg:   #{darken($color: $color, $amount: 40%)};
+			--sidebar-nav-bg:#{darken($color: $color, $amount: 35%)};
+			
+			.deznav .metismenu > li:hover > a .menu-icon svg path, .deznav .metismenu > li:focus > a .menu-icon svg path{
+				stroke: white;
+			}
+			.deznav .metismenu > li.mm-active > a .menu-icon svg path{
+				stroke: white;
+			}
+			
+			.switch-btn{
+				svg{
+					path{
+						stroke:$white;
+					}
+				}
+				span{
+					color:$white;
+				}
+				border-color: rgba(255,255,255,0.2);
+			}
+			.nav-header .brand-title{
+				path{
+					fill:$white;
+				}
+			}
+			.deznav .metismenu ul a:before{
+				background:rgba($white,0.5);
+			}
+			.deznav{
+				.menu-icon{
+					svg{
+						path,
+						ellipse{
+							stroke:$white;
+						}
+					}
+				}
+			}
+			.nav-header {
+				//border-color: rgba(255,255,255,0.2);
+			}
+			&[data-layout="horizontal"][data-primary="color_13"] {
+				.deznav .metismenu > li:hover > a .menu-icon svg path{
+					stroke: white!important;
+				}
+			}
+			&[data-layout="horizontal"] {
+				--headerbg:#f4f4f5;
+			}
+			&[data-layout="vertical"]{
+				.deznav {
+					.menu-title{
+						color:$white;
+					}
+					.metismenu{
+						&>li{
+							&.mm-active{
+								&>a{
+									i{
+										color:$white;
+									}
+								}
+							}
+						}				
+					} 
+					.plus-box{
+						h5,
+						p{
+							color:$white;
+							
+						}
+					}
+					
+				}
+				.deznav .metismenu > li > a .menu-icon{
+					background-color:rgba(255,255,255,0.10);
+				}
+				.deznav .metismenu > li.mm-active > a .menu-icon{
+					background-color:var(--primary-light);
+					svg{
+						path{
+							stroke:black;
+						}
+					}
+				}
+				.deznav .metismenu > li:hover > .has-arrow .menu-icon{
+					background-color:var(--primary-light);
+					svg{
+						path{
+							stroke:black;
+						}
+					}
+				}
+				
+			}
+			&[data-sidebar-style="nini"][data-layout="horizontal"]{
+				.deznav .metismenu > li.mm-active > a .menu-icon{
+					background-color:transparent;
+				}
+			}
+			&[data-sidebar-style="nini"][data-layout="vertical"]{
+				.deznav .metismenu > li.mm-active > a .menu-icon{
+					background-color:var(--primary-light);
+				}
+				.deznav .metismenu > li:hover > .has-arrow .menu-icon{
+					background-color:var(--primary-light);
+				}
+			}
+			&[data-sidebar-style="modern"]{
+				.deznav .metismenu > li:before{
+					background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #FFFFFF 53.12%, rgba(255, 255, 255, 0) 100%);
+				}
+				.deznav .metismenu > li.mm-active > a .menu-icon{
+					background-color:transparent!important;
+					path{
+						fill{
+							stroke:white!important;
+						}
+					}
+				}
+				.deznav .metismenu li ul{
+					background-color:var(--sidebar-nav-bg);
+				}
+				.deznav .metismenu > li:hover > a .menu-icon, .deznav .metismenu > li:focus > a .menu-icon{
+					//background-color:var(--primary-light);
+					svg{
+						path{
+							stroke: var(--primary)!important;
+						}
+					}
+				}
+			}
+			&[data-sidebar-style="modern"][data-layout="vertical"]{
+				.deznav .metismenu > li:before{
+					background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #FFFFFF 53.12%, rgba(255, 255, 255, 0) 100%);
+				}
+				.deznav .metismenu > li > a .menu-icon{
+					background-color:transparent;
+				}
+				.deznav .metismenu > li.mm-active > a .menu-icon svg path{
+					stroke: white;
+				}
+				.deznav .metismenu > li:hover > .has-arrow .menu-icon{
+					background-color:transparent;
+					svg{
+						path{
+							stroke:white;
+						}
+					}
+				}
+				.deznav .metismenu > li:hover > a{
+					color:var(--primary);
+					.menu-icon svg path{
+						stroke:white;
+					}
+					
+				}
+			}
+			&[data-layout="horizontal"]{
+				.deznav .metismenu > li:hover > ul{
+					background-color:var(--sidebar-nav-bg);
+				}
+				.deznav .metismenu li > ul ul{
+					background-color:var(--sidebar-nav-bg);
+				}
+				.deznav .metismenu > li:hover > a .menu-icon, .deznav .metismenu > li:focus > a .menu-icon{
+					background-color:transparent!important;
+					svg{
+						path{
+							stroke: var(--primary)!important;
+						}
+					}
+				}
+			}
+			&[data-sidebar-style="mini"],
+			&[data-sidebar-style="modern"],
+			&[data-sidebar-style="compact"],
+			&[data-sidebar-style="icon-hover"][data-layout="horizontal"],
+			&[data-sidebar-style="full"][data-layout="horizontal"]
+			{
+				
+				.deznav .metismenu > li.mm-active > a,
+				.deznav .metismenu > li:hover > a{
+						//background:var(--primary);
+				}
+			}
+			/* &[data-sidebar-style="full"][data-layout="vertical"]{
+				.deznav .metismenu > li.mm-active > a,
+				.deznav .metismenu > li:hover > a{
+						background:transparent;
+				}	
+			} */
+			&[data-sidebar-style="compact"][data-layout="vertical"]{
+				.deznav {
+					.metismenu {
+						&>li {
+							a{
+								&:hover{
+									color:$white;
+								}
+							}
+							&>a{
+								&>i{
+									background: lighten($color: $color, $amount: 3%);
+									color:rgba($white,0.7);
+								}
+							}
+							&.mm-active,&:hover{
+								&>a {
+									box-shadow:none;
+									background:transparent!important;
+									color:$white!important;
+									i{
+										background:var(--primary);
+										color:$white!important;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			&[data-sidebar-style="modern"][data-sidebarbg="color_13"][data-primary="color_13"]{
+				.deznav .metismenu > li:hover > a .menu-icon svg path{
+					stroke:white!important;
+				}
+			}
+				
+			&[data-sidebar-style="compact"][data-layout="horizontal"]{
+				.deznav {
+					.metismenu {
+						&>li {
+							&>a{
+								.menu-icon{
+									background-color: rgba(255,255,255,0.1);
+								}	
+							}
+							&:hover{
+								.menu-icon{
+									background-color:var(--primary-light)!important;
+									svg{
+										path{
+											stroke:black!important;
+										}
+									}
+								}	
+							}
+							
+						}
+						
+					}
+				}
+				
+			}
+			&[data-layout="horizontal"]{
+				.deznav {
+					.metismenu{
+						&>li{
+							&.mm-active{
+								&>a{
+									.menu-icon{
+										svg{
+											path{
+												//stroke:black!important;
+											}
+										}
+									}
+								}
+								
+							}
+							&:hover{
+								&>a{
+									.menu-icon{
+										svg{
+											path{
+												stroke: black;
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+					
+				}
+				.deznav .metismenu li > ul li a{
+					padding: 0.5rem 1.25rem 0.5rem 1.25rem;
+				}
+			}
+			&[data-layout="horizontal"][data-sidebar-style="full"]{
+				.deznav .metismenu > li:hover > a .menu-icon svg path{
+					stroke: var(--primary)!important;
+				}
+			}
+			[data-layout="horizontal"][data-sidebar-style="icon-hover"]{
+				.deznav .metismenu > li:hover > a .menu-icon svg path{
+					stroke: var(--primary);
+				}
+			}
+			.deznav .metismenu > li:hover > a .menu-icon, .deznav .metismenu > li:focus > a .menu-icon{
+				background-color:var(--primary-light);
+				svg{
+					path{
+						stroke: black!important;
+					}
+				}
+			}
+			.deznav {
+				.metismenu{
+					a{
+						color:rgba($white,0.8)!important;
+					}
+					li{
+						ul{
+							a{
+								&:hover,
+								&:focus,
+								&.mm-active {
+									color:$white;
+								}
+							}
+						}
+					}
+					&>li{
+						&:hover{
+							&>a{
+								.menu-icon{
+									//background-color:var(--primary-light)!important;
+									svg{
+										path{
+											stroke:var(--primary);
+										}
+									}
+								}
+							}
+						}
+						&>a{
+							
+							color:rgba($white,0.85)!important;
+							i{
+								color:rgba($white,0.85)!important;
+							}
+							.menu-icon{
+								//background-color:rgba(255,255,255,0.2);
+							}
+							
+						}
+						&.mm-active{
+							&>a{
+								//background: rgba(255, 255, 255, 0.15) !important;
+								color:$white;
+								i{
+									color:$white!important;
+								}
+								&:before{
+									background:$white!important;
+								}
+								.menu-icon{
+									//background-color:var(--primary-light);
+									svg{
+										path{
+											//stroke:black;
+										}
+									}
+								}
+							}
+							
+						}
+					}
+					.has-arrow:after{
+						border-color: rgba($white,0.85) transparent transparent rgba($white,0.85)!important;
+					}				
+				} 
+				.help-desk{
+					.btn{
+						background-color:lighten($color: $color, $amount: 10%);	
+						border-color:lighten($color: $color, $amount: 10%);	
+					}
+				}
+				.header-info2 span{
+					color: $white;
+				}
+				.sidebar-info{
+					color: $white; 
+					i{
+						color: $white; 		
+					}
+				}
+				
+			}
+			.plus-box{
+				background-color: lighten($color: $color, $amount: 10%);
+			}
+			.copyright{
+				color:$white;
+			}
+		}
+	}
+}
+
+[data-sidebarbg="color_13"]{
+    --sidebar-bg: #111828;
+    --nav-headbg: #111828;
+    --headerbg: #111828;
+	--sidebar-nav-bg: #1A2439;
+}
+
+//background for nav header
+@each $name, $color in $theme_backgrounds {
+	[data-headerbg="#{$name}"][data-theme-version="dark"],
+    [data-headerbg="#{$name}"] {
+        @if $name != "color_1"  {
+			--headerbg: #{$color};
+				.header-left{
+					.search-area{
+						.form-control,
+						.input-group-text{
+							background-color:lighten($color: $color, $amount: 10%);
+						}
+					}
+				}
+				.nav-control{
+					background-color:lighten($color: $color, $amount: 10%);
+				}
+				.search-area .input-group-text,
+				.search-area .form-control,.search-area .form-control::placeholder{
+					color:$white;
+					
+				}
+				.search-area .input-group-append .input-group-text i{
+					color:$white;
+				}
+			.header-left .search-area{
+				background-color: lighten($color: $color, $amount: 10%);
+			}	
+			.header-right{
+				.search-area .form-control,
+				.search-area .input-group-text{
+					background-color: lighten($color: $color, $amount: 10%);
+					i{
+						color:$white;
+					}
+					svg{
+						path{
+						fill:$white;
+						}
+					}
+				}
+				.notification_dropdown .nav-link{
+					//background-color: lighten($color: $color, $amount: 10%);
+					//background-color:$dark;
+					&.show{
+						background-color:#202020;
+					}
+					
+				}
+				.dz-side-menu{
+					.search-coundry{
+						.dashboard-select{
+							// color:$white;
+							&:after{
+								// border-color:$white;
+							}
+						}
+					}
+				}
+				.nav-item{
+					svg{
+						path,
+						circle{
+							stroke:$white!important;
+						}
+					}
+					&.ps-3{
+						&:hover{
+							background:transparent;
+						}
+					}
+					.ai-icon{
+						svg{
+							path,
+							circle{
+								stroke:var(--primary)!important;
+							}
+						}
+					}
+					
+				}
+				.header-border{
+					.btn{
+						background-color:lighten($color: $color, $amount: 10%);
+						border-color:lighten($color: $color, $amount: 10%);
+					}
+					&:hover{
+						background:transparent;
+					}
+				}
+				
+				.header-info{
+					 p{
+						color: #E1E1E1;
+					 }
+					 h6{
+						color:$white;
+					 }
+				}
+				
+			}
+			.header-left{
+				.dashboard_bar{
+					color:$white;
+				}
+			}
+			.header-left .search-area .input-group-text a svg path, .header-left .search-area .input-group-text a svg circle{
+				stroke:$white;
+			}
+			.header-profile > a.nav-link .header-info small, .header-profile > a.nav-link .header-info span{
+				color:$white;	
+			}
+			.hamburger .line{
+				background:$white!important;
+					svg{
+						rect{
+							fill:$white!important;
+						}
+					}
+				}
+			.hamburger{
+				svg{
+					rect{
+						fill:$white!important;
+					}
+				}
+			}
+			&[data-headerbg="color_4"]{
+				.search-area .input-group-text,
+				.search-area .form-control,.search-area .form-control::placeholder{
+					color:var(--bs-card-color);
+					
+				}
+			}
+			
+			//special work for color
+			/* &[data-headerbg="color_8"]{
+					
+				.search-area .input-group-text,
+				.search-area .form-control,.search-area .form-control::placeholder{
+					color:$black;
+					background:#F1F1F1;
+				}
+				.header-left{
+					.search-area .form-control,
+					.search-area .input-group-text{
+						i{
+							color:$black;
+						}
+					}
+					.dashboard_bar{
+						color:$black;	
+					}
+					.plus-icon a{
+						background-color:$black;	
+					}
+					
+				}
+				.hamburger .line{
+					background:$black;
+					}
+				
+				.header-right{
+				svg{
+					path{
+						fill:rgba($black,0.4);	
+					}
+				}
+			} */
+			
+		}
+	}
+}
+//background for nav header
+ @each $name, $color in $theme_backgrounds {
+	 [data-primary="#{$name}"][data-nav-headerbg="#{$name}"][data-theme-version="light"],
+     [data-nav-headerbg="#{$name}"] {
+		 @if $name == "color_1"  {
+			
+			
+			&[data-layout="horizontal"]{
+				.header .header-content {
+					padding-left: 48px;
+				}
+			}
+			&[data-sidebar-style="mini"],
+			&[data-sidebar-style="modern"],
+			&[data-sidebar-style="compact"]{
+				.color-title{
+					display:none! important;
+				}
+			}
+			&[data-sidebar-style="icon-hover"]{
+				.color-title{
+					display:none! important ;
+				}
+				.iconhover-toggle{
+						.color-title{
+							display:block! important;
+					}
+				}
+			}
+			&[data-sidebar-style="icon-hover"][data-layout="horizontal"]{
+				.color-title{
+					display:block! important;
+				}
+			}
+			&[data-sidebar-style="morden"][data-layout="horizontal"]{
+				.color-title{
+					display:block! important;
+				}
+			}
+			&[data-sidebar-style="compact"][data-layout="horizontal"]{
+				.color-title{
+					display:block! important;
+				}
+			}
+			&[data-sidebar-style="compact"][data-layout="vertical"]{
+				.menu-toggle {
+					.color-title{
+						display:block! important;
+					}
+				}
+			}
+		}
+	}
+}

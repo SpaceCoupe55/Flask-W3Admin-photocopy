@@ -1,0 +1,56 @@
+{% extends 'leasing/layout.html' %}
+{% from 'leasing/_macros.html' import csrf, field %}
+
+{% block content %}
+<form method="post">
+    {{ csrf() }}
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header"><h4 class="card-title">Account</h4></div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">{{ field('Full name', 'name', user.name, required=True) }}</div>
+                        <div class="col-md-6">{{ field('Email (sign-in)', 'email', user.email, type='email', required=True) }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">{{ field('Phone', 'phone', user.phone) }}</div>
+                        <div class="col-md-6">{{ field('Job title', 'job_title', user.job_title) }}</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="role">Role</label>
+                        <select class="form-control" id="role" name="role" required>
+                            {% for key, label in roles.items() %}
+                            <option value="{{ key }}" {% if user.role == key %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {{ field('Password' if is_new else 'New password', 'password', '', type='password',
+                             required=is_new, help='At least 8 characters.' if is_new else 'Leave blank to keep the current password.') }}
+                    {% if not is_new %}
+                    <div class="form-check custom-checkbox mb-3">
+                        <input type="checkbox" class="form-check-input" id="active" name="active" {% if user.active %}checked{% endif %}>
+                        <label class="form-check-label" for="active">Account is active (can sign in)</label>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header"><h4 class="card-title">Save</h4></div>
+                <div class="card-body">
+                    {% if not is_new %}
+                    <dl class="detail-list">
+                        <dt>Created</dt><dd>{{ user.created_at|datetime }}</dd>
+                        <dt>Last sign-in</dt><dd>{{ user.last_login_at|datetime if user.last_login_at else 'Never' }}</dd>
+                    </dl>
+                    {% endif %}
+                    <button type="submit" class="btn btn-primary w-100 mb-2">Save user</button>
+                    <a href="{{ url_for('settings.users') }}" class="btn btn-light w-100">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

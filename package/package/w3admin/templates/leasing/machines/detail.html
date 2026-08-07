@@ -1,0 +1,142 @@
+{% extends 'leasing/layout.html' %}
+{% from 'leasing/_macros.html' import csrf, machine_badge, contract_badge, ticket_badge, badge, empty %}
+
+{% block page_subtitle %}<p class="page-subtitle">{{ machine.manufacturer }} {{ machine.model }} · serial {{ machine.serial_number }}</p>{% endblock %}
+
+{% block page_actions %}
+{% if current_user.is_admin or current_user.is_sales %}
+<a href="{{ url_for('machines.edit', machine_id=machine.id) }}" class="btn btn-light">Edit</a>
+{% endif %}
+<a href="{{ url_for('service.create', customer=machine.customer_id or '') }}" class="btn btn-light">Log Service</a>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xl-4">
+        <div class="card">
+            <div class="card-header"><h4 class="card-title">Machine</h4>{{ machine_badge(machine) }}</div>
+            <div class="card-body">
+                <dl class="detail-list">
+                    <dt>Asset tag</dt><dd>{{ machine.asset_tag }}</dd>
+                    <dt>Condition</dt><dd>{{ machine.condition|title }}</dd>
+                    <dt>Colour capable</dt><dd>{{ 'Yes' if machine.supports_colour else 'No' }}</dd>
+                    <dt>Location</dt><dd>{{ machine.location or '—' }}</dd>
+                    <dt>Assigned to</dt>
+                    <dd>
+                        {% if machine.customer %}<a href="{{ url_for('customers.detail', customer_id=machine.customer.id) }}">{{ machine.customer.company_name }}</a>
+                        {% else %}Available in stock{% endif %}
+                    </dd>
+                    <dt>Purchased</dt><dd>{{ machine.purchase_date|day }}{% if machine.purchase_cost %} · {{ machine.purchase_cost|money }}{% endif %}</dd>
+                </dl>
+                {% if machine.notes %}<p class="text-muted-2 mb-0">{{ machine.notes }}</p>{% endif %}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><h4 class="card-title">Record a meter reading</h4></div>
+            <div class="card-body">
+                <form method="post" action="{{ url_for('machines.add_reading') }}">
+                    {{ csrf() }}
+                    <input type="hidden" name="machine_id" value="{{ machine.id }}">
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label" for="reading_date">Date</label>
+                            <input type="date" class="form-control" id="reading_date" name="reading_date" value="{{ today }}" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label" for="source">Source</label>
+                            <select class="form-control" id="source" name="source">
+                                {% for s in sources %}<option value="{{ s }}" {% if s == 'technician' %}selected{% endif %}>{{ s|title }}</option>{% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label" for="mono_count">Mono counter</label>
+                            <input type="number" min="0" class="form-control" id="mono_count" name="mono_count"
+                                   value="{{ machine.latest_reading.mono_count if machine.latest_reading else 0 }}" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label" for="colour_count">Colour counter</label>
+                            <input type="number" min="0" class="form-control" id="colour_count" name="colour_count"
+                                   value="{{ machine.latest_reading.colour_count if machine.latest_reading else 0 }}"
+                                   {% if not machine.supports_colour %}readonly{% endif %}>
+                        </div>
+                    </div>
+                    <div class="mb-3"><input type="text" class="form-control" name="notes" placeholder="Note (optional)"></div>
+                    <button class="btn btn-primary w-100">Save reading</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-8">
+        <div class="card table-card">
+            <div class="card-header"><h4 class="card-title">Lease history</h4></div>
+            <div class="card-body table-responsive">
+                {% if machine.contracts %}
+                <table class="table data-table mb-0">
+                    <thead><tr><th>Reference</th><th>Customer</th><th>Term</th><th>Billing</th><th class="numeric">Status</th></tr></thead>
+                    <tbody>
+                    {% for contract in machine.contracts %}
+                    <tr>
+                        <td><a href="{{ url_for('contracts.detail', contract_id=contract.id) }}" class="row-title">{{ contract.reference }}</a></td>
+                        <td>{{ contract.customer.company_name }}</td>
+                        <td>{{ contract.start_date|day }}<span class="row-sub">to {{ contract.end_date|day }}</span></td>
+                        <td>{{ contract.billing_type_label }}</td>
+                        <td class="numeric">{{ contract_badge(contract) }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}{{ empty('This machine has never been leased.') }}{% endif %}
+            </div>
+        </div>
+
+        <div class="card table-card">
+            <div class="card-header"><h4 class="card-title">Meter readings</h4>
+                <a href="{{ url_for('machines.readings', machine=machine.id) }}" class="btn btn-sm btn-light">All readings</a>
+            </div>
+            <div class="card-body table-responsive">
+                {% if machine.readings %}
+                <table class="table data-table mb-0">
+                    <thead><tr><th>Date</th><th class="numeric">Mono</th><th class="numeric">Colour</th><th class="numeric">Total</th><th>Source</th><th class="numeric">Billed</th></tr></thead>
+                    <tbody>
+                    {% for reading in machine.readings[:12] %}
+                    <tr>
+                        <td>{{ reading.reading_date|day }}<span class="row-sub">{{ reading.recorded_by.name if reading.recorded_by else '—' }}</span></td>
+                        <td class="numeric">{{ reading.mono_count|qty }}</td>
+                        <td class="numeric">{{ reading.colour_count|qty }}</td>
+                        <td class="numeric">{{ reading.total_count|qty }}</td>
+                        <td>{{ reading.source|title }}</td>
+                        <td class="numeric">{{ badge('Billed', 'success') if reading.billed else badge('Pending', 'secondary') }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}{{ empty('No meter readings recorded for this machine.') }}{% endif %}
+            </div>
+        </div>
+
+        <div class="card table-card">
+            <div class="card-header"><h4 class="card-title">Service history</h4></div>
+            <div class="card-body table-responsive">
+                {% if machine.tickets %}
+                <table class="table data-table mb-0">
+                    <thead><tr><th>Ticket</th><th>Issue</th><th>Technician</th><th>Parts</th><th class="numeric">Status</th></tr></thead>
+                    <tbody>
+                    {% for ticket in machine.tickets %}
+                    <tr>
+                        <td><a href="{{ url_for('service.detail', ticket_id=ticket.id) }}" class="row-title">{{ ticket.reference }}</a><span class="row-sub">{{ ticket.created_at|day }}</span></td>
+                        <td>{{ ticket.title|truncate(40) }}</td>
+                        <td>{{ ticket.technician.name if ticket.technician else 'Unassigned' }}</td>
+                        <td>{{ ticket.part_usages|length }}</td>
+                        <td class="numeric">{{ ticket_badge(ticket) }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}{{ empty('No service tickets for this machine.') }}{% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

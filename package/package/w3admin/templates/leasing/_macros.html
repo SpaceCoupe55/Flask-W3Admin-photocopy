@@ -1,0 +1,91 @@
+{# Shared UI fragments for the leasing modules. #}
+
+{% macro csrf() %}
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+{%- endmacro %}
+
+{% macro stat(label, value, hint=None, tone='primary', icon='fa-chart-simple', href=None) %}
+<div class="card stat-card bg-{{ tone }}-light h-100">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <h6 class="font-w400 mb-1">{{ label }}</h6>
+                <h3 class="mb-0">{{ value }}</h3>
+                {% if hint %}<small class="d-block mt-1 text-muted-2">{{ hint }}</small>{% endif %}
+            </div>
+            <div class="icon-box"><i class="fa-solid {{ icon }}"></i></div>
+        </div>
+        {% if href %}<a href="{{ href }}" class="stretched-link" aria-label="{{ label }}"></a>{% endif %}
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro badge(text, tone='secondary') %}
+<span class="badge badge-sm light text-bg-{{ tone }}">{{ text }}</span>
+{%- endmacro %}
+
+{% macro invoice_badge(invoice) %}{{ badge(invoice.status_label, invoice.status_class) }}{% endmacro %}
+
+{% macro ticket_badge(ticket) %}{{ badge(ticket.status_label, ticket.status_class) }}{% endmacro %}
+
+{% macro machine_badge(machine) %}
+{{ badge(machine.status_label, {'in_stock':'info','leased':'success','maintenance':'warning','retired':'dark'}.get(machine.status, 'secondary')) }}
+{%- endmacro %}
+
+{% macro contract_badge(contract) %}
+{{ badge(contract.status|title, {'active':'success','draft':'secondary','expired':'warning','terminated':'dark'}.get(contract.status, 'secondary')) }}
+{%- endmacro %}
+
+{% macro empty(message, action_url=None, action_label=None) %}
+<div class="empty-state text-center py-5">
+    <i class="fa-regular fa-folder-open fs-1 mb-3 d-block"></i>
+    <p class="mb-3">{{ message }}</p>
+    {% if action_url %}<a href="{{ action_url }}" class="btn btn-primary btn-sm">{{ action_label }}</a>{% endif %}
+</div>
+{%- endmacro %}
+
+{% macro field(label, name, value='', type='text', required=False, placeholder='', help=None, attrs='') %}
+<div class="mb-3">
+    <label class="form-label" for="f-{{ name }}">{{ label }}{% if required %} <span class="text-danger">*</span>{% endif %}</label>
+    <input type="{{ type }}" class="form-control" id="f-{{ name }}" name="{{ name }}"
+           value="{{ value if value is not none else '' }}" placeholder="{{ placeholder }}"
+           {% if required %}required{% endif %} {{ attrs|safe }}>
+    {% if help %}<small class="form-text text-muted-2">{{ help }}</small>{% endif %}
+</div>
+{%- endmacro %}
+
+{% macro select(label, name, options, selected=None, required=False, help=None, blank=None) %}
+<div class="mb-3">
+    <label class="form-label" for="f-{{ name }}">{{ label }}{% if required %} <span class="text-danger">*</span>{% endif %}</label>
+    <select class="form-control default-select" id="f-{{ name }}" name="{{ name }}" {% if required %}required{% endif %}>
+        {% if blank %}<option value="">{{ blank }}</option>{% endif %}
+        {% for value, text in options %}
+        <option value="{{ value }}" {% if selected is not none and value|string == selected|string %}selected{% endif %}>{{ text }}</option>
+        {% endfor %}
+    </select>
+    {% if help %}<small class="form-text text-muted-2">{{ help }}</small>{% endif %}
+</div>
+{%- endmacro %}
+
+{% macro textarea(label, name, value='', rows=3, placeholder='') %}
+<div class="mb-3">
+    <label class="form-label" for="f-{{ name }}">{{ label }}</label>
+    <textarea class="form-control" id="f-{{ name }}" name="{{ name }}" rows="{{ rows }}" placeholder="{{ placeholder }}">{{ value if value is not none else '' }}</textarea>
+</div>
+{%- endmacro %}
+
+{% macro filter_bar(action, search, placeholder='Search…', extra=None) %}
+<form class="row g-2 align-items-end filter-bar mb-3" method="get" action="{{ action }}">
+    <div class="col-md-4">
+        <div class="input-group search-area">
+            <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+            <input type="text" name="q" value="{{ search or '' }}" class="form-control" placeholder="{{ placeholder }}">
+        </div>
+    </div>
+    {{ extra }}
+    <div class="col-auto">
+        <button class="btn btn-primary" type="submit">Filter</button>
+        <a href="{{ action }}" class="btn btn-light">Reset</a>
+    </div>
+</form>
+{%- endmacro %}

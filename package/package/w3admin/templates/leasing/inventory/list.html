@@ -1,0 +1,83 @@
+{% extends 'leasing/layout.html' %}
+{% from 'leasing/_macros.html' import csrf, badge, empty %}
+
+{% block page_subtitle %}<p class="page-subtitle">{{ parts|length }} item{{ '' if parts|length == 1 else 's' }} · {{ low_count }} at or below reorder level · stock value {{ stock_value|money }}</p>{% endblock %}
+
+{% block page_actions %}
+<a href="{{ url_for('inventory.usage') }}" class="btn btn-light">Usage log</a>
+{% if current_user.is_admin or current_user.is_sales %}
+<a href="{{ url_for('inventory.create') }}" class="btn btn-primary">New Item</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="card table-card">
+    <div class="card-body">
+        <form class="row g-2 align-items-end filter-bar mb-3" method="get">
+            <div class="col-md-4">
+                <div class="input-group search-area">
+                    <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                    <input type="text" name="q" value="{{ search }}" class="form-control" placeholder="Name or SKU…">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select name="category" class="form-control">
+                    <option value="">All categories</option>
+                    {% for c in categories %}<option value="{{ c }}" {% if category == c %}selected{% endif %}>{{ c|title }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="view" class="form-control">
+                    <option value="">All stock</option>
+                    <option value="low" {% if view == 'low' %}selected{% endif %}>Low stock only</option>
+                </select>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-primary" type="submit">Filter</button>
+                <a href="{{ url_for('inventory.parts') }}" class="btn btn-light">Reset</a>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            {% if parts %}
+            <table class="table data-table mb-0">
+                <thead>
+                    <tr><th>Item</th><th>Category</th><th>Supplier</th><th class="numeric">In stock</th><th class="numeric">Reorder at</th>
+                        <th class="numeric">Unit cost</th><th class="numeric">Value</th>
+                        {% if current_user.is_admin or current_user.is_sales %}<th class="numeric">Adjust</th>{% endif %}</tr>
+                </thead>
+                <tbody>
+                {% for part in parts %}
+                <tr>
+                    <td><span class="row-title">{{ part.name }}</span><span class="row-sub">{{ part.sku }}{% if part.charge_to_customer %} · recharged to customer{% endif %}</span></td>
+                    <td>{{ part.category|title }}</td>
+                    <td>{{ part.supplier or '—' }}</td>
+                    <td class="numeric">
+                        {% if part.is_low_stock %}{{ badge(part.quantity_in_stock ~ ' ' ~ part.unit, 'danger' if part.quantity_in_stock == 0 else 'warning') }}
+                        {% else %}{{ part.quantity_in_stock }} {{ part.unit }}{% endif %}
+                    </td>
+                    <td class="numeric">{{ part.reorder_level }}</td>
+                    <td class="numeric">{{ part.unit_cost|money }}</td>
+                    <td class="numeric">{{ part.stock_value|money }}</td>
+                    {% if current_user.is_admin or current_user.is_sales %}
+                    <td class="numeric">
+                        <form method="post" action="{{ url_for('inventory.adjust_stock', part_id=part.id) }}" class="d-flex gap-1 justify-content-end">
+                            {{ csrf() }}
+                            <input type="number" name="delta" class="form-control form-control-sm" style="width:5.5rem" placeholder="+/-">
+                            <input type="hidden" name="reason" value="manual adjustment">
+                            <button class="btn btn-sm btn-light">Apply</button>
+                            <a href="{{ url_for('inventory.edit', part_id=part.id) }}" class="btn btn-sm btn-light">Edit</a>
+                        </form>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            {{ empty('No stock items match this filter.', url_for('inventory.create') if current_user.is_admin or current_user.is_sales else None, 'Add an item') }}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

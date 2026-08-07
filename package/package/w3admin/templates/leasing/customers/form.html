@@ -1,0 +1,52 @@
+{% extends 'leasing/layout.html' %}
+{% from 'leasing/_macros.html' import csrf, field, select, textarea %}
+
+{% block content %}
+<form method="post">
+    {{ csrf() }}
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header"><h4 class="card-title">Company details</h4></div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">{{ field('Company name', 'company_name', customer.company_name, required=True, placeholder='e.g. Sunrise Chambers Ltd') }}</div>
+                        <div class="col-md-4">{{ select('Status', 'status', statuses|options, customer.status) }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">{{ field('Contact person', 'contact_name', customer.contact_name) }}</div>
+                        <div class="col-md-6">{{ field('Phone', 'phone', customer.phone, placeholder='+233 …') }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">{{ field('Email', 'email', customer.email, type='email') }}</div>
+                        <div class="col-md-6">{{ field('Branch / department', 'branch', customer.branch, help='Optional — use for multi-site customers.') }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-8">{{ field('Address', 'address', customer.address) }}</div>
+                        <div class="col-md-4">{{ field('City / town', 'city', customer.city) }}</div>
+                    </div>
+                    {{ textarea('Notes', 'notes', customer.notes, rows=4, placeholder='Access instructions, billing preferences, key contacts…') }}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header"><h4 class="card-title">Record</h4></div>
+                <div class="card-body">
+                    <dl class="detail-list">
+                        <dt>Customer code</dt>
+                        <dd>{{ customer.code or 'Assigned on save' }}</dd>
+                        {% if customer.id %}
+                        <dt>Created</dt><dd>{{ customer.created_at|datetime }}</dd>
+                        <dt>Created by</dt><dd>{{ customer.created_by.name if customer.created_by else '—' }}</dd>
+                        {% endif %}
+                    </dl>
+                    <button type="submit" class="btn btn-primary w-100 mb-2">Save customer</button>
+                    <a href="{{ url_for('customers.detail', customer_id=customer.id) if customer.id else url_for('customers.index') }}" class="btn btn-light w-100">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

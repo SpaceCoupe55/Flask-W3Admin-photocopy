@@ -1,0 +1,78 @@
+{% extends 'leasing/layout.html' %}
+{% from 'leasing/_macros.html' import machine_badge, badge, empty %}
+
+{% block page_subtitle %}
+<p class="page-subtitle">
+    {% for key, label in status_labels.items() %}{{ label }}: <strong>{{ counts.get(key, 0) }}</strong>{{ ' · ' if not loop.last }}{% endfor %}
+</p>
+{% endblock %}
+
+{% block page_actions %}
+{% if current_user.is_admin or current_user.is_sales %}
+<a href="{{ url_for('machines.create') }}" class="btn btn-primary">Register Machine</a>
+{% endif %}
+<a href="{{ url_for('machines.readings') }}" class="btn btn-light">Meter Readings</a>
+{% endblock %}
+
+{% block content %}
+<div class="card table-card">
+    <div class="card-body">
+        <form class="row g-2 align-items-end filter-bar mb-3" method="get">
+            <div class="col-md-5">
+                <div class="input-group search-area">
+                    <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                    <input type="text" name="q" value="{{ search }}" class="form-control" placeholder="Asset tag, model, serial or location…">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select name="status" class="form-control">
+                    <option value="">All statuses</option>
+                    {% for s in statuses %}<option value="{{ s }}" {% if status == s %}selected{% endif %}>{{ status_labels[s] }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-primary" type="submit">Filter</button>
+                <a href="{{ url_for('machines.index') }}" class="btn btn-light">Reset</a>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            {% if machines %}
+            <table class="table data-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Asset</th><th>Model</th><th>Serial</th><th>Assigned to</th>
+                        <th>Last reading</th><th class="numeric">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for machine in machines %}
+                <tr>
+                    <td><a href="{{ url_for('machines.detail', machine_id=machine.id) }}" class="row-title">{{ machine.asset_tag }}</a>
+                        <span class="row-sub">{{ machine.condition|title }}{% if machine.supports_colour %} · colour{% endif %}</span></td>
+                    <td>{{ machine.manufacturer }} {{ machine.model }}</td>
+                    <td>{{ machine.serial_number }}</td>
+                    <td>
+                        {% if machine.customer %}
+                        <a href="{{ url_for('customers.detail', customer_id=machine.customer.id) }}">{{ machine.customer.company_name }}</a>
+                        <span class="row-sub">{{ machine.active_contract.reference if machine.active_contract else 'no active lease' }}</span>
+                        {% else %}<span class="text-muted-2">In stock{% if machine.location %} · {{ machine.location }}{% endif %}</span>{% endif %}
+                    </td>
+                    <td>
+                        {% if machine.latest_reading %}
+                        <span class="meter-pill">{{ machine.latest_reading.total_count|qty }}</span>
+                        <span class="row-sub">{{ machine.latest_reading.reading_date|day }}</span>
+                        {% else %}<span class="text-muted-2">—</span>{% endif %}
+                    </td>
+                    <td class="numeric">{{ machine_badge(machine) }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            {{ empty('No machines match this filter.', url_for('machines.create') if current_user.is_admin or current_user.is_sales else None, 'Register a machine') }}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

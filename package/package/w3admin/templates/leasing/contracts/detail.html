@@ -1,0 +1,180 @@
+{% extends 'leasing/layout.html' %}
+{% from 'leasing/_macros.html' import csrf, contract_badge, invoice_badge, badge, empty %}
+
+{% block page_subtitle %}
+<p class="page-subtitle">
+    {{ contract.customer.company_name }} · {{ contract.machine.display }}
+    {% if contract.renewed_from %} · renewed from {{ contract.renewed_from.reference }}{% endif %}
+</p>
+{% endblock %}
+
+{% block page_actions %}
+<a href="{{ url_for('contracts.edit', contract_id=contract.id) }}" class="btn btn-light">Edit</a>
+<a href="{{ url_for('billing.generate') }}" class="btn btn-primary">Generate Invoice</a>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xl-4">
+        <div class="card">
+            <div class="card-header"><h4 class="card-title">Contract</h4>{{ contract_badge(contract) }}</div>
+            <div class="card-body">
+                <dl class="detail-list">
+                    <dt>Reference</dt><dd>{{ contract.reference }}</dd>
+                    <dt>Customer</dt><dd><a href="{{ url_for('customers.detail', customer_id=contract.customer_id) }}">{{ contract.customer.company_name }}</a></dd>
+                    <dt>Machine</dt><dd><a href="{{ url_for('machines.detail', machine_id=contract.machine_id) }}">{{ contract.machine.display }}</a></dd>
+                    <dt>Term</dt><dd>{{ contract.start_date|day }} → {{ contract.end_date|day }}</dd>
+                    <dt>Renewal</dt>
+                    <dd>
+                        {% if contract.status != 'active' %}<span class="text-muted-2">{{ contract.status|title }}{% if contract.terminated_on %} on {{ contract.terminated_on|day }}{% endif %}</span>
+                        {% elif contract.days_to_expiry < 0 %}{{ badge('Expired ' ~ (contract.days_to_expiry|abs) ~ ' days ago', 'danger') }}
+                        {% else %}{{ badge(contract.days_to_expiry ~ ' days remaining', 'warning' if contract.days_to_expiry <= 30 else 'secondary') }}{% endif %}
+                    </dd>
+                    <dt>Billing</dt>
+                    <dd>
+                        {{ contract.billing_type_label }}
+                        <span class="row-sub">
+                            {% if contract.billing_type in ('flat','hybrid') %}{{ contract.flat_monthly_fee|money }} per month<br>{% endif %}
+                            {% if contract.charges_per_copy %}
+                                {{ contract.mono_rate|rate }} per mono copy
+                                {% if contract.colour_rate %}· {{ contract.colour_rate|rate }} per colour copy{% endif %}
+                                {% if contract.included_mono or contract.included_colour %}
+                                <br>Included: {{ contract.included_mono|qty }} mono / {{ contract.included_colour|qty }} colour
+                                {% endif %}
+                            {% endif %}
+                        </span>
+                    </dd>
+                    <dt>Created</dt><dd>{{ contract.created_at|day }}{% if contract.created_by %} by {{ contract.created_by.name }}{% endif %}</dd>
+                </dl>
+                {% if contract.notes %}<p class="text-muted-2 mb-0">{{ contract.notes }}</p>{% endif %}
+                {% if contract.termination_reason %}<div class="alert alert-secondary mt-3 mb-0">Termination: {{ contract.termination_reason }}</div>{% endif %}
+            </div>
+        </div>
+
+        {% if contract.charges_per_copy %}
+        <div class="card">
+            <div class="card-header"><h4 class="card-title">Unbilled usage</h4></div>
+            <div class="card-body">
+                {% if current_reading and baseline and current_reading.id != baseline.id %}
+                <dl class="detail-list">
+                    <dt>Measured from</dt><dd>{{ baseline.reading_date|day }} · {{ baseline.mono_count|qty }} mono / {{ baseline.colour_count|qty }} colour</dd>
+                    <dt>Latest reading</dt><dd>{{ current_reading.reading_date|day }} · {{ current_reading.mono_count|qty }} mono / {{ current_reading.colour_count|qty }} colour</dd>
+                    <dt>Copies to bill</dt>
+                    <dd>
+                        <span class="meter-pill">{{ unbilled[0]|qty }} mono</span>
+                        <span class="meter-pill">{{ unbilled[1]|qty }} colour</span>
+                    </dd>
+                </dl>
+                <a href="{{ url_for('billing.generate') }}" class="btn btn-primary btn-sm w-100">Bill this usage</a>
+                {% else %}
+                <p class="text-muted-2 mb-0">No new meter reading since the last invoice. Record one on the
+                    <a href="{{ url_for('machines.detail', machine_id=contract.machine_id) }}">machine page</a>.</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-xl-8">
+        {% if contract.status == 'active' %}
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header"><h4 class="card-title">Renew lease</h4></div>
+                    <div class="card-body">
+                        <form method="post" action="{{ url_for('contracts.renew', contract_id=contract.id) }}">
+                            {{ csrf() }}
+                            <div class="row">
+                                <div class="col-6 mb-3">
+                                    <label class="form-label" for="renew_start">New start</label>
+                                    <input type="date" class="form-control" id="renew_start" name="start_date" value="{{ contract.end_date }}" required>
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <label class="form-label" for="renew_end">New end</label>
+                                    <input type="date" class="form-control" id="renew_end" name="end_date" value="{{ default_renewal_end }}" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="renew_fee">Revised monthly fee</label>
+                                <input type="number" step="0.01" min="0" class="form-control" id="renew_fee" name="flat_monthly_fee"
+                                       placeholder="Leave blank to keep {{ contract.flat_monthly_fee|money }}">
+                            </div>
+                            <button class="btn btn-primary w-100">Renew on new term</button>
+                            <small class="text-muted-2 d-block mt-2">The current contract is closed as expired and a new reference is issued.</small>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header"><h4 class="card-title">Terminate lease</h4></div>
+                    <div class="card-body">
+                        <form method="post" action="{{ url_for('contracts.terminate', contract_id=contract.id) }}"
+                              data-confirm="Terminate {{ contract.reference }}? This closes the lease and returns the machine to stock.">
+                            {{ csrf() }}
+                            <div class="mb-3">
+                                <label class="form-label" for="reason">Reason</label>
+                                <input type="text" class="form-control" id="reason" name="reason" placeholder="Customer request, non-payment, upgrade…" required>
+                            </div>
+                            <div class="form-check custom-checkbox mb-3">
+                                <input type="checkbox" class="form-check-input" id="return_machine" name="return_machine" value="1" checked>
+                                <label class="form-check-label" for="return_machine">Return {{ contract.machine.asset_tag }} to available stock</label>
+                            </div>
+                            <button class="btn btn-danger w-100">Terminate lease</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="card table-card">
+            <div class="card-header"><h4 class="card-title">Invoices on this lease</h4></div>
+            <div class="card-body table-responsive">
+                {% if contract.invoices %}
+                <table class="table data-table mb-0">
+                    <thead><tr><th>Invoice</th><th>Period</th><th>Due</th><th class="numeric">Total</th><th class="numeric">Balance</th><th class="numeric">Status</th></tr></thead>
+                    <tbody>
+                    {% for invoice in contract.invoices|sort(attribute='issue_date', reverse=true) %}
+                    <tr>
+                        <td><a href="{{ url_for('billing.detail', invoice_id=invoice.id) }}" class="row-title">{{ invoice.number }}</a><span class="row-sub">{{ invoice.issue_date|day }}</span></td>
+                        <td>{% if invoice.period_start %}{{ invoice.period_start|day }} → {{ invoice.period_end|day }}{% else %}—{% endif %}</td>
+                        <td>{{ invoice.due_date|day }}</td>
+                        <td class="numeric">{{ invoice.total|money }}</td>
+                        <td class="numeric">{{ invoice.balance|money }}</td>
+                        <td class="numeric">{{ invoice_badge(invoice) }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}{{ empty('No invoices raised against this lease yet.', url_for('billing.generate'), 'Generate one') }}{% endif %}
+            </div>
+        </div>
+
+        <div class="card table-card">
+            <div class="card-header"><h4 class="card-title">Meter readings</h4>
+                <a href="{{ url_for('machines.detail', machine_id=contract.machine_id) }}" class="btn btn-sm btn-light">Record reading</a>
+            </div>
+            <div class="card-body table-responsive">
+                {% set readings = contract.machine.readings[:10] %}
+                {% if readings %}
+                <table class="table data-table mb-0">
+                    <thead><tr><th>Date</th><th class="numeric">Mono</th><th class="numeric">Colour</th><th>Source</th><th class="numeric">Billed</th></tr></thead>
+                    <tbody>
+                    {% for reading in readings %}
+                    <tr>
+                        <td>{{ reading.reading_date|day }}</td>
+                        <td class="numeric">{{ reading.mono_count|qty }}</td>
+                        <td class="numeric">{{ reading.colour_count|qty }}</td>
+                        <td>{{ reading.source|title }}</td>
+                        <td class="numeric">{{ badge('Billed', 'success') if reading.billed else badge('Pending', 'secondary') }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}{{ empty('No readings yet for this machine.') }}{% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

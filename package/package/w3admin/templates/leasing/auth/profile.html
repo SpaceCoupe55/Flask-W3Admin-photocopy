@@ -1,0 +1,38 @@
+{% extends 'leasing/layout.html' %}
+{% from 'leasing/_macros.html' import csrf, field, badge %}
+
+{% block content %}
+<form method="post">
+    {{ csrf() }}
+    <div class="row">
+        <div class="col-lg-7">
+            <div class="card">
+                <div class="card-header"><h4 class="card-title">My details</h4></div>
+                <div class="card-body">
+                    {{ field('Full name', 'name', current_user.name, required=True) }}
+                    {{ field('Phone', 'phone', current_user.phone) }}
+                    {{ field('Job title', 'job_title', current_user.job_title) }}
+                    <h5 class="mt-4 mb-3">Change password</h5>
+                    {{ field('Current password', 'current_password', '', type='password') }}
+                    {{ field('New password', 'new_password', '', type='password', help='At least 8 characters. Leave blank to keep the current one.') }}
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="card">
+                <div class="card-header"><h4 class="card-title">Account</h4></div>
+                <div class="card-body">
+                    <dl class="detail-list">
+                        <dt>Email</dt><dd>{{ current_user.email }}</dd>
+                        <dt>Role</dt><dd>{{ badge(current_user.role_label, {'admin':'danger','sales':'primary','technician':'info'}.get(current_user.role,'secondary')) }}</dd>
+                        <dt>Member since</dt><dd>{{ current_user.created_at|day }}</dd>
+                        <dt>Last sign-in</dt><dd>{{ current_user.last_login_at|datetime if current_user.last_login_at else '—' }}</dd>
+                    </dl>
+                    <p class="text-muted-2 mb-0">Only an administrator can change your role or email address.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

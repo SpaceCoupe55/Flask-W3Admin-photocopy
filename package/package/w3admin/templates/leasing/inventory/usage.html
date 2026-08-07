@@ -1,0 +1,30 @@
+{% extends 'leasing/layout.html' %}
+{% from 'leasing/_macros.html' import empty %}
+
+{% block page_subtitle %}<p class="page-subtitle">{{ usages|length }} entries · {{ total_cost|money }} of stock consumed</p>{% endblock %}
+
+{% block content %}
+<div class="card table-card">
+    <div class="card-body table-responsive">
+        {% if usages %}
+        <table class="table data-table mb-0">
+            <thead><tr><th>Date</th><th>Item</th><th>Ticket</th><th>Customer / machine</th><th>Technician</th><th class="numeric">Qty</th><th class="numeric">Cost</th></tr></thead>
+            <tbody>
+            {% for usage in usages %}
+            <tr>
+                <td>{{ usage.used_at|datetime }}</td>
+                <td><span class="row-title">{{ usage.part.name }}</span><span class="row-sub">{{ usage.part.sku }}</span></td>
+                <td><a href="{{ url_for('service.detail', ticket_id=usage.ticket_id) }}">{{ usage.ticket.reference }}</a></td>
+                <td>{{ usage.ticket.customer.company_name }}
+                    <span class="row-sub">{{ usage.ticket.machine.asset_tag if usage.ticket.machine else '—' }}</span></td>
+                <td>{{ usage.recorded_by.name if usage.recorded_by else '—' }}</td>
+                <td class="numeric">{{ usage.quantity }}</td>
+                <td class="numeric">{{ usage.line_cost|money }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}{{ empty('No consumables have been logged against jobs yet.') }}{% endif %}
+    </div>
+</div>
+{% endblock %}

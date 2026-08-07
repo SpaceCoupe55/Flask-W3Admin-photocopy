@@ -1,0 +1,161 @@
+{% extends 'leasing/layout.html' %}
+{% from 'leasing/_macros.html' import stat, badge, empty %}
+
+{% block page_subtitle %}<p class="page-subtitle">{{ start|day }} → {{ end|day }} · {{ invoice_count }} invoices in window</p>{% endblock %}
+
+{% block page_actions %}
+<a href="{{ url_for('reports.revenue_csv', **{'from': start, 'to': end}) }}" class="btn btn-light">Revenue CSV</a>
+<a href="{{ url_for('reports.overdue_csv') }}" class="btn btn-light">Overdue CSV</a>
+<a href="{{ url_for('reports.utilisation_csv') }}" class="btn btn-light">Utilisation CSV</a>
+{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-body">
+        <form class="row g-2 align-items-end" method="get">
+            <div class="col-md-3">
+                <label class="form-label" for="from">From</label>
+                <input type="date" class="form-control" id="from" name="from" value="{{ start }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="to">To</label>
+                <input type="date" class="form-control" id="to" name="to" value="{{ end }}">
+            </div>
+            <div class="col-auto"><button class="btn btn-primary">Apply</button></div>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-3 col-sm-6 mb-4">{{ stat('Invoiced', billed, 'In selected window', 'primary', 'fa-file-invoice') }}</div>
+    <div class="col-xl-3 col-sm-6 mb-4">{{ stat('Collected', collected, 'Payments received', 'info', 'fa-sack-dollar') }}</div>
+    <div class="col-xl-3 col-sm-6 mb-4">{{ stat('Outstanding', outstanding, 'All unpaid invoices', 'danger', 'fa-hourglass-half') }}</div>
+    <div class="col-xl-3 col-sm-6 mb-4">{{ stat('Fleet utilisation', utilisation ~ '%', 'Machines on active lease', 'warning', 'fa-print') }}</div>
+</div>
+
+<div class="row">
+    <div class="col-xl-8 mb-4">
+        <div class="card h-100">
+            <div class="card-header border-0 pb-0"><h4 class="card-title mb-0">Monthly revenue</h4></div>
+            <div class="card-body"><div id="revenueChart"></div></div>
+        </div>
+    </div>
+    <div class="col-xl-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header border-0 pb-0"><h4 class="card-title mb-0">Receivables ageing</h4></div>
+            <div class="card-body">
+                <table class="table data-table mb-0">
+                    <tbody>
+                    <tr><td>Not yet due</td><td class="numeric">{{ aging.current|money }}</td></tr>
+                    <tr><td>1–30 days late</td><td class="numeric">{{ aging['1-30']|money }}</td></tr>
+                    <tr><td>31–60 days late</td><td class="numeric">{{ aging['31-60']|money }}</td></tr>
+                    <tr><td>Over 60 days</td><td class="numeric text-danger">{{ aging['60+']|money }}</td></tr>
+                    </tbody>
+                </table>
+                <h6 class="mt-4 mb-2">Service in window</h6>
+                <ul class="list-unstyled mb-0">
+                    <li class="d-flex justify-content-between py-1"><span>Tickets logged</span><strong>{{ ticket_summary.logged }}</strong></li>
+                    <li class="d-flex justify-content-between py-1"><span>Resolved</span><strong>{{ ticket_summary.resolved }}</strong></li>
+                    <li class="d-flex justify-content-between py-1"><span>Still open</span><strong>{{ ticket_summary.open }}</strong></li>
+                    <li class="d-flex justify-content-between py-1"><span>Avg resolution</span><strong>{{ ticket_summary.avg_resolution_hours }} h</strong></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-6 mb-4">
+        <div class="card h-100 table-card">
+            <div class="card-header"><h4 class="card-title">Top customers by billing</h4></div>
+            <div class="card-body table-responsive">
+                {% if top_customers %}
+                <table class="table data-table mb-0">
+                    <thead><tr><th>Customer</th><th class="numeric">Leases</th><th class="numeric">Invoiced</th><th class="numeric">Owing</th></tr></thead>
+                    <tbody>
+                    {% for row in top_customers %}
+                    <tr>
+                        <td><a href="{{ url_for('customers.detail', customer_id=row.customer.id) }}" class="row-title">{{ row.customer.company_name }}</a></td>
+                        <td class="numeric">{{ row.machines }}</td>
+                        <td class="numeric">{{ row.invoiced|money }}</td>
+                        <td class="numeric">{{ row.outstanding|money }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}{{ empty('No invoices in the selected window.') }}{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-6 mb-4">
+        <div class="card h-100 table-card">
+            <div class="card-header"><h4 class="card-title">Technician workload</h4></div>
+            <div class="card-body table-responsive">
+                {% if workload %}
+                <table class="table data-table mb-0">
+                    <thead><tr><th>Technician</th><th class="numeric">Open jobs</th><th class="numeric">Completed</th><th class="numeric">Parts used</th></tr></thead>
+                    <tbody>
+                    {% for row in workload %}
+                    <tr>
+                        <td><span class="row-title">{{ row.technician.name }}</span><span class="row-sub">{{ row.technician.email }}</span></td>
+                        <td class="numeric">{{ row.open }}</td>
+                        <td class="numeric">{{ row.resolved }}</td>
+                        <td class="numeric">{{ row.parts_cost|money }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}{{ empty('No technician accounts yet.') }}{% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card table-card">
+    <div class="card-header"><h4 class="card-title">Machine utilisation</h4>
+        <span class="text-muted-2">Sorted by lifetime copy volume</span>
+    </div>
+    <div class="card-body table-responsive">
+        {% if machine_rows %}
+        <table class="table data-table mb-0">
+            <thead><tr><th>Asset</th><th>Machine</th><th>Customer</th><th>Lease</th><th>Last reading</th><th class="numeric">Total copies</th><th class="numeric">Open tickets</th><th class="numeric">Status</th></tr></thead>
+            <tbody>
+            {% for row in machine_rows %}
+            <tr>
+                <td><a href="{{ url_for('machines.detail', machine_id=row.machine.id) }}" class="row-title">{{ row.machine.asset_tag }}</a></td>
+                <td>{{ row.machine.manufacturer }} {{ row.machine.model }}</td>
+                <td>{{ row.customer.company_name if row.customer else '—' }}</td>
+                <td>{{ row.contract.reference if row.contract else '—' }}</td>
+                <td>{{ row.last_reading.reading_date|day if row.last_reading else '—' }}</td>
+                <td class="numeric">{{ row.volume|qty }}</td>
+                <td class="numeric">{{ row.tickets }}</td>
+                <td class="numeric">{{ badge(status_labels[row.machine.status], 'success' if row.machine.status == 'leased' else 'secondary') }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}{{ empty('No machines registered.') }}{% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block additional_js %}
+<script src="{{ url_for('static', filename='w3admin/vendor/apexchart/apexchart.js') }}"></script>
+<script>
+new ApexCharts(document.querySelector('#revenueChart'), {
+    chart: { type: 'line', height: 340, toolbar: { show: false } },
+    stroke: { width: [0, 3], curve: 'smooth' },
+    series: [
+        { name: 'Invoiced', type: 'column', data: {{ series | map(attribute=2) | map('float') | list | tojson }} },
+        { name: 'Collected', type: 'line', data: {{ series | map(attribute=1) | map('float') | list | tojson }} }
+    ],
+    colors: ['#c8cfe0', 'var(--primary)'],
+    plotOptions: { bar: { borderRadius: 6, columnWidth: '45%' } },
+    dataLabels: { enabled: false },
+    legend: { position: 'top', horizontalAlign: 'right' },
+    xaxis: { categories: {{ series | map(attribute=0) | list | tojson }} },
+    grid: { borderColor: 'rgba(0,0,0,0.06)' }
+}).render();
+</script>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'leasing/layout.html' %}
+{% from 'leasing/_macros.html' import csrf, field, select, textarea %}
+
+{% block content %}
+<form method="post">
+    {{ csrf() }}
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header"><h4 class="card-title">Item</h4></div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">{{ field('SKU / code', 'sku', part.sku, required=True, placeholder='TNR-CAN-045') }}</div>
+                        <div class="col-md-8">{{ field('Name', 'name', part.name, required=True, placeholder='Canon 045 Black Toner') }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">{{ select('Category', 'category', categories|options, part.category) }}</div>
+                        <div class="col-md-4">{{ field('Unit', 'unit', part.unit, placeholder='unit, bottle, box') }}</div>
+                        <div class="col-md-4">{{ field('Supplier', 'supplier', part.supplier) }}</div>
+                    </div>
+                    <div class="row">
+                        {% if not part.id %}
+                        <div class="col-md-4">{{ field('Opening stock', 'quantity_in_stock', 0, type='number', attrs='min="0"') }}</div>
+                        {% endif %}
+                        <div class="col-md-4">{{ field('Reorder level', 'reorder_level', part.reorder_level, type='number', attrs='min="0"', help='Low-stock alerts fire at or below this.') }}</div>
+                        <div class="col-md-4">{{ field('Unit cost', 'unit_cost', part.unit_cost, type='number', attrs='step="0.01" min="0"') }}</div>
+                    </div>
+                    <div class="form-check custom-checkbox mb-3">
+                        <input type="checkbox" class="form-check-input" id="charge_to_customer" name="charge_to_customer" {% if part.charge_to_customer %}checked{% endif %}>
+                        <label class="form-check-label" for="charge_to_customer">Rechargeable — usage can be billed back to the customer</label>
+                    </div>
+                    {{ textarea('Notes', 'notes', part.notes, rows=2) }}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header"><h4 class="card-title">Save</h4></div>
+                <div class="card-body">
+                    {% if part.id %}
+                    <dl class="detail-list">
+                        <dt>Current stock</dt><dd>{{ part.quantity_in_stock }} {{ part.unit }}</dd>
+                        <dt>Stock value</dt><dd>{{ part.stock_value|money }}</dd>
+                    </dl>
+                    <p class="text-muted-2">Use the adjust field on the stock list to add or remove quantity — it keeps an audit entry.</p>
+                    {% endif %}
+                    <button type="submit" class="btn btn-primary w-100 mb-2">Save item</button>
+                    <a href="{{ url_for('inventory.parts') }}" class="btn btn-light w-100">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

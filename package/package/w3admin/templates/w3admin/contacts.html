@@ -1,0 +1,566 @@
+{% extends 'w3admin/elements/layouts/admin.html' %}
+
+
+{% block additional_css %}
+{% endblock %}
+
+{% block content %}
+
+
+<!--**********************************
+	Content body start
+***********************************-->
+<div class="outer-body">
+	<div class="inner-body">
+		<div class="content-body">
+			<div class="container-fluid">
+				<h3 class="head-title">Contacts</h3>
+				<div class="row">
+					<div class="col-xl-3 col-lg-4 col-sm-6 contect-card">
+						<div class="card">
+							<div class="card-body">
+								<div class="card-use-box">
+									<div class="crd-bx-img">
+										<img src="{{ url_for('static', filename='w3admin/images/profile/friends/f1.jpg')}}" class="rounded-circle" alt="">
+										<div class="active"></div>
+									</div>
+									<div class="card__text">
+										<h4 class="mb-0">Sophia Ava</h4>
+										<p>demo11@gmail.com</p>
+									</div>
+									<ul class="card__info">
+										<li>
+										<span class="card__info__stats">175</span>
+										<span>posts</span>
+										</li>
+										<li>
+										<span class="card__info__stats">50</span>
+										<span>followers</span>
+										</li>
+										<li>
+										<span class="card__info__stats">30</span>
+										<span>following</span>
+										</li>
+									</ul>
+									<ul class="post-pos">
+										<li>
+											<span class="card__info__stats">Position: </span>
+											<span>Software Engineer</span>
+										</li>
+										<li>
+											<span class="card__info__stats">Joining Date: </span>
+											<span>15 Feb 2023</span>
+										</li>
+									</ul>
+									<div>
+										<a href="javascript:void(0)" class="btn btn-primary light light  me-2">Message</a>
+										<a href="javascript:void(0)" class="btn btn-secondary light  ms-2" >Following</a>
+									</div>	
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-xl-3 col-lg-4 col-sm-6 contect-card">
+						<div class="card">
+							<div class="card-body">
+								<div class="card-use-box">
+									<div class="crd-bx-img">
+										<img src="{{ url_for('static', filename='w3admin/images/profile/friends/f1.jpg')}}" class="rounded-circle" alt="">
+										<div class="active deactive"></div>
+									</div>
+									<div class="card__text">
+										<h4 class="mb-0">Alexandra Joi</h4>
+										<p>demo@gmail.com</p>
+									</div>
+									<ul class="card__info">
+										<li>
+										<span class="card__info__stats">172</span>
+										<span>posts</span>
+										</li>
+										<li>
+										<span class="card__info__stats">47</span>
+										<span>followers</span>
+										</li>
+										<li>
+										<span class="card__info__stats">20</span>
+										<span>following</span>
+										</li>
+									</ul>
+									<ul class="post-pos">
+										<li>
+											<span class="card__info__stats">Position: </span>
+											<span>Web Doveloper</span>
+										</li>
+										<li>
+											<span class="card__info__stats">Joining Date: </span>
+											<span>12 Jan 2023</span>
+										</li>
+									</ul>
+									<div>
+										<a href="javascript:void(0)" class="btn btn-primary light light  me-2">Message</a>
+										<a href="javascript:void(0)" class="btn btn-secondary light  ms-2" >Following</a>
+									</div>	
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-xl-3 col-lg-4 col-sm-6 contect-card">
+						<div class="card">
+							<div class="card-body">
+								<div class="card-use-box">
+									<div class="crd-bx-img">
+										<img src="{{ url_for('static', filename='w3admin/images/profile/friends/f2.jpg')}}" class="rounded-circle" alt="">
+										<div class="active"></div>
+									</div>
+									<div class="card__text">
+										<h4 class="mb-0">Amelia Mia</h4>
+										<p>demo11@gmail.com</p>
+									</div>
+									<ul class="card__info">
+										<li>
+										<span class="card__info__stats">180</span>
+										<span>posts</span>
+										</li>
+										<li>
+										<span class="card__info__stats">90</span>
+										<span>followers</span>
+										</li>
+										<li>
+										<span class="card__info__stats">40</span>
+										<span>following</span>
+										</li>
+									</ul>
+									<ul class="post-pos">
+										<li>
+											<span class="card__info__stats">Position: </span>
+											<span>App Doveloper</span>
+										</li>
+										<li>
+											<span class="card__info__stats">Joining Date: </span>
+											<span>17 Mar 2023</span>
+										</li>
+									</ul>
+									<div>
+										<a href="javascript:void(0)" class="btn btn-primary light light  me-2">Message</a>
+										<a href="javascript:void(0)" class="btn btn-secondary light  ms-2" >Following</a>
+									</div>	
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-xl-3 col-lg-4 col-sm-6 contect-card">
+						<div class="card">
+							<div class="card-body">
+								<div class="card-use-box">
+									<div class="crd-bx-img">
+										<img src="{{ url_for('static', filename='w3admin/images/profile/friends/f3.jpg')}}" class="rounded-circle" alt="">
+										<div class="active deactive"></div>
+									</div>
+									<div class="card__text">
+										<h4 class="mb-0">Olivia Emma</h4>
+										<p>demo1121@gmail.com</p>
+									</div>
+									<ul class="card__info">
+										<li>
+										<span class="card__info__stats">1500</span>
+										<span>posts</span>
+										</li>
+										<li>
+										<span class="card__info__stats">310</span>
+										<span>followers</span>
+										</li>
+										<li>
+										<span class="card__info__stats">10</span>
+										<span>following</span>
+										</li>
+									</ul>
+									<ul class="post-pos">
+										<li>
+											<span class="card__info__stats">Position: </span>
+											<span>App Doveloper</span>
+										</li>
+										<li>
+											<span class="card__info__stats">Joining Date: </span>
+											<span>17 Mar 2023</span>
+										</li>
+									</ul>
+									<div>
+										<a href="javascript:void(0)" class="btn btn-primary light light  me-2">Message</a>
+										<a href="javascript:void(0)" class="btn btn-secondary light  ms-2" >Following</a>
+									</div>	
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-xl-3 col-lg-4 col-sm-6 contect-card">
+						<div class="card">
+							<div class="card-body">
+								<div class="card-use-box">
+									<div class="crd-bx-img">
+										<img src="{{ url_for('static', filename='w3admin/images/profile/friends/f4.jpg')}}" class="rounded-circle" alt="">
+										<div class="active deactive"></div>
+									</div>
+									<div class="card__text">
+										<h4 class="mb-0">Ava Sophia</h4>
+										<p>demo121@gmail.com</p>
+									</div>
+									<ul class="card__info">
+										<li>
+										<span class="card__info__stats">450</span>
+										<span>posts</span>
+										</li>
+										<li>
+										<span class="card__info__stats">782</span>
+										<span>followers</span>
+										</li>
+										<li>
+										<span class="card__info__stats">585</span>
+										<span>following</span>
+										</li>
+									</ul>
+									<ul class="post-pos">
+										<li>
+											<span class="card__info__stats">Position: </span>
+											<span>Mobile Doveloper</span>
+										</li>
+										<li>
+											<span class="card__info__stats">Joining Date: </span>
+											<span>17 Mar 2023</span>
+										</li>
+									</ul>
+									<div>
+										<a href="javascript:void(0)" class="btn btn-primary light light  me-2">Message</a>
+										<a href="javascript:void(0)" class="btn btn-secondary light  ms-2" >Following</a>
+									</div>	
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-xl-3 col-lg-4 col-sm-6 contect-card">
+						<div class="card">
+							<div class="card-body">
+								<div class="card-use-box">
+									<div class="crd-bx-img">
+										<img src="{{ url_for('static', filename='w3admin/images/profile/friends/f1.jpg')}}" class="rounded-circle" alt="">
+										<div class="active"></div>
+									</div>
+									<div class="card__text">
+										<h4 class="mb-0">Sophia Ava</h4>
+										<p>demo11@gmail.com</p>
+									</div>
+									<ul class="card__info">
+										<li>
+										<span class="card__info__stats">175</span>
+										<span>posts</span>
+										</li>
+										<li>
+										<span class="card__info__stats">50</span>
+										<span>followers</span>
+										</li>
+										<li>
+										<span class="card__info__stats">30</span>
+										<span>following</span>
+										</li>
+									</ul>
+									<ul class="post-pos">
+										<li>
+											<span class="card__info__stats">Position: </span>
+											<span>Software Engineer</span>
+										</li>
+										<li>
+											<span class="card__info__stats">Joining Date: </span>
+											<span>15 Feb 2023</span>
+										</li>
+									</ul>
+									<div>
+										<a href="javascript:void(0)" class="btn btn-primary light light  me-2">Message</a>
+										<a href="javascript:void(0)" class="btn btn-secondary light  ms-2" >Following</a>
+									</div>	
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-xl-3 col-lg-4 col-sm-6 contect-card">
+						<div class="card">
+							<div class="card-body">
+								<div class="card-use-box">
+									<div class="crd-bx-img">
+										<img src="{{ url_for('static', filename='w3admin/images/profile/friends/f1.jpg')}}" class="rounded-circle" alt="">
+										<div class="active deactive"></div>
+									</div>
+									<div class="card__text">
+										<h4 class="mb-0">Alexandra Joi</h4>
+										<p>demo@gmail.com</p>
+									</div>
+									<ul class="card__info">
+										<li>
+										<span class="card__info__stats">172</span>
+										<span>posts</span>
+										</li>
+										<li>
+										<span class="card__info__stats">47</span>
+										<span>followers</span>
+										</li>
+										<li>
+										<span class="card__info__stats">20</span>
+										<span>following</span>
+										</li>
+									</ul>
+									<ul class="post-pos">
+										<li>
+											<span class="card__info__stats">Position: </span>
+											<span>Web Doveloper</span>
+										</li>
+										<li>
+											<span class="card__info__stats">Joining Date: </span>
+											<span>12 Jan 2023</span>
+										</li>
+									</ul>
+									<div>
+										<a href="javascript:void(0)" class="btn btn-primary light light  me-2">Message</a>
+										<a href="javascript:void(0)" class="btn btn-secondary light  ms-2" >Following</a>
+									</div>	
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-xl-3 col-lg-4 col-sm-6 contect-card">
+						<div class="card">
+							<div class="card-body">
+								<div class="card-use-box">
+									<div class="crd-bx-img">
+										<img src="{{ url_for('static', filename='w3admin/images/profile/friends/f2.jpg')}}" class="rounded-circle" alt="">
+										<div class="active"></div>
+									</div>
+									<div class="card__text">
+										<h4 class="mb-0">Amelia Mia</h4>
+										<p>demo11@gmail.com</p>
+									</div>
+									<ul class="card__info">
+										<li>
+										<span class="card__info__stats">180</span>
+										<span>posts</span>
+										</li>
+										<li>
+										<span class="card__info__stats">90</span>
+										<span>followers</span>
+										</li>
+										<li>
+										<span class="card__info__stats">40</span>
+										<span>following</span>
+										</li>
+									</ul>
+									<ul class="post-pos">
+										<li>
+											<span class="card__info__stats">Position: </span>
+											<span>App Doveloper</span>
+										</li>
+										<li>
+											<span class="card__info__stats">Joining Date: </span>
+											<span>17 Mar 2023</span>
+										</li>
+									</ul>
+									<div>
+										<a href="javascript:void(0)" class="btn btn-primary light light  me-2">Message</a>
+										<a href="javascript:void(0)" class="btn btn-secondary light  ms-2" >Following</a>
+									</div>	
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-xl-3 col-lg-4 col-sm-6 contect-card">
+						<div class="card">
+							<div class="card-body">
+								<div class="card-use-box">
+									<div class="crd-bx-img">
+										<img src="{{ url_for('static', filename='w3admin/images/profile/friends/f3.jpg')}}" class="rounded-circle" alt="">
+										<div class="active"></div>
+									</div>
+									<div class="card__text">
+										<h4 class="mb-0">Olivia Emma</h4>
+										<p>demo1121@gmail.com</p>
+									</div>
+									<ul class="card__info">
+										<li>
+										<span class="card__info__stats">1500</span>
+										<span>posts</span>
+										</li>
+										<li>
+										<span class="card__info__stats">310</span>
+										<span>followers</span>
+										</li>
+										<li>
+										<span class="card__info__stats">10</span>
+										<span>following</span>
+										</li>
+									</ul>
+									<ul class="post-pos">
+										<li>
+											<span class="card__info__stats">Position: </span>
+											<span>App Doveloper</span>
+										</li>
+										<li>
+											<span class="card__info__stats">Joining Date: </span>
+											<span>17 Mar 2023</span>
+										</li>
+									</ul>
+									<div>
+										<a href="javascript:void(0)" class="btn btn-primary light light  me-2">Message</a>
+										<a href="javascript:void(0)" class="btn btn-secondary light  ms-2" >Following</a>
+									</div>	
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-xl-3 col-lg-4 col-sm-6 contect-card">
+						<div class="card">
+							<div class="card-body">
+								<div class="card-use-box">
+									<div class="crd-bx-img">
+										<img src="{{ url_for('static', filename='w3admin/images/profile/friends/f4.jpg')}}" class="rounded-circle" alt="">
+										<div class="active"></div>
+									</div>
+									<div class="card__text">
+										<h4 class="mb-0">Ava Sophia</h4>
+										<p>demo121@gmail.com</p>
+									</div>
+									<ul class="card__info">
+										<li>
+										<span class="card__info__stats">450</span>
+										<span>posts</span>
+										</li>
+										<li>
+										<span class="card__info__stats">782</span>
+										<span>followers</span>
+										</li>
+										<li>
+										<span class="card__info__stats">585</span>
+										<span>following</span>
+										</li>
+									</ul>
+									<ul class="post-pos">
+										<li>
+											<span class="card__info__stats">Position: </span>
+											<span>Mobile Doveloper</span>
+										</li>
+										<li>
+											<span class="card__info__stats">Joining Date: </span>
+											<span>17 Mar 2023</span>
+										</li>
+									</ul>
+									<div>
+										<a href="javascript:void(0)" class="btn btn-primary light light  me-2">Message</a>
+										<a href="javascript:void(0)" class="btn btn-secondary light  ms-2" >Following</a>
+									</div>	
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-xl-3 col-lg-4 col-sm-6 contect-card">
+						<div class="card">
+							<div class="card-body">
+								<div class="card-use-box">
+									<div class="crd-bx-img">
+										<img src="{{ url_for('static', filename='w3admin/images/profile/friends/f1.jpg')}}" class="rounded-circle" alt="">
+										<div class="active deactive"></div>
+									</div>
+									<div class="card__text">
+										<h4 class="mb-0">Sophia Ava</h4>
+										<p>demo11@gmail.com</p>
+									</div>
+									<ul class="card__info">
+										<li>
+										<span class="card__info__stats">175</span>
+										<span>posts</span>
+										</li>
+										<li>
+										<span class="card__info__stats">50</span>
+										<span>followers</span>
+										</li>
+										<li>
+										<span class="card__info__stats">30</span>
+										<span>following</span>
+										</li>
+									</ul>
+									<ul class="post-pos">
+										<li>
+											<span class="card__info__stats">Position: </span>
+											<span>Software Engineer</span>
+										</li>
+										<li>
+											<span class="card__info__stats">Joining Date: </span>
+											<span>15 Feb 2023</span>
+										</li>
+									</ul>
+									<div>
+										<a href="javascript:void(0)" class="btn btn-primary light light  me-2">Message</a>
+										<a href="javascript:void(0)" class="btn btn-secondary light  ms-2" >Following</a>
+									</div>	
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-xl-3 col-lg-4 col-sm-6 contect-card">
+						<div class="card">
+							<div class="card-body">
+								<div class="card-use-box">
+									<div class="crd-bx-img">
+										<img src="{{ url_for('static', filename='w3admin/images/profile/friends/f1.jpg')}}" class="rounded-circle" alt="">
+										<div class="active"></div>
+									</div>
+									<div class="card__text">
+										<h4 class="mb-0">Alexandra Joi</h4>
+										<p>demo@gmail.com</p>
+									</div>
+									<ul class="card__info">
+										<li>
+										<span class="card__info__stats">172</span>
+										<span>posts</span>
+										</li>
+										<li>
+										<span class="card__info__stats">47</span>
+										<span>followers</span>
+										</li>
+										<li>
+										<span class="card__info__stats">20</span>
+										<span>following</span>
+										</li>
+									</ul>
+									<ul class="post-pos">
+										<li>
+											<span class="card__info__stats">Position: </span>
+											<span>Web Doveloper</span>
+										</li>
+										<li>
+											<span class="card__info__stats">Joining Date: </span>
+											<span>12 Jan 2023</span>
+										</li>
+									</ul>
+									<div>
+										<a href="javascript:void(0)" class="btn btn-primary light light  me-2">Message</a>
+										<a href="javascript:void(0)" class="btn btn-secondary light  ms-2" >Following</a>
+									</div>	
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="footer">
+			<div class="copyright">
+				<p>Copyright © Developed by <a href="https://dexignzone.com/" target="_blank">DexignZone</a> 2024</p>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!--**********************************
+	Content body end
+***********************************-->
+
+{% endblock %}
+
+{% block additional_js %}
+
+{% endblock %}

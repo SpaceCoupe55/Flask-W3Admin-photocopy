@@ -1,0 +1,50 @@
+{% extends 'leasing/layout.html' %}
+{% from 'leasing/_macros.html' import csrf, field, select, textarea %}
+
+{% block content %}
+<form method="post">
+    {{ csrf() }}
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header"><h4 class="card-title">Equipment</h4></div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">{{ field('Asset tag', 'asset_tag', machine.asset_tag or suggested_tag, required=True, help='Auto-suggested — change it to match your own labelling.') }}</div>
+                        <div class="col-md-4">{{ field('Manufacturer', 'manufacturer', machine.manufacturer, required=True, placeholder='Canon, Ricoh, Kyocera…') }}</div>
+                        <div class="col-md-4">{{ field('Model', 'model', machine.model, required=True) }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">{{ field('Serial number', 'serial_number', machine.serial_number, required=True) }}</div>
+                        <div class="col-md-4">{{ select('Condition', 'condition', conditions|options, machine.condition) }}</div>
+                        <div class="col-md-4">{{ select('Status', 'status', statuses|options(status_labels), machine.status) }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">{{ field('Location', 'location', machine.location, placeholder='Warehouse shelf, customer floor…') }}</div>
+                        <div class="col-md-3">{{ field('Purchase date', 'purchase_date', machine.purchase_date, type='date') }}</div>
+                        <div class="col-md-3">{{ field('Purchase cost', 'purchase_cost', machine.purchase_cost, type='number', attrs='step="0.01" min="0"') }}</div>
+                    </div>
+                    <div class="form-check custom-checkbox mb-3">
+                        <input type="checkbox" class="form-check-input" id="supports_colour" name="supports_colour" {% if machine.supports_colour %}checked{% endif %}>
+                        <label class="form-check-label" for="supports_colour">Machine prints in colour (enables colour meter billing)</label>
+                    </div>
+                    {{ textarea('Notes', 'notes', machine.notes, rows=3) }}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header"><h4 class="card-title">Assignment</h4></div>
+                <div class="card-body">
+                    {{ select('Held by customer', 'customer_id', customers|choices,
+                              machine.customer_id, blank='— in stock —',
+                              help='Normally set automatically when a lease is created.') }}
+                    <button type="submit" class="btn btn-primary w-100 mb-2">Save machine</button>
+                    <a href="{{ url_for('machines.detail', machine_id=machine.id) if machine.id else url_for('machines.index') }}" class="btn btn-light w-100">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

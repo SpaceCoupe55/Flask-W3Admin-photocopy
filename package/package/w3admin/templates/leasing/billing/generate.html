@@ -1,0 +1,53 @@
+{% extends 'leasing/layout.html' %}
+{% from 'leasing/_macros.html' import csrf, badge, empty %}
+
+{% block page_subtitle %}<p class="page-subtitle">Raise a draft invoice for one billing period of an active lease</p>{% endblock %}
+
+{% block content %}
+<div class="card table-card">
+    <div class="card-header">
+        <h4 class="card-title">Active leases ready to bill</h4>
+        <span class="text-muted-2">Flat leases can always be billed; per-copy leases need a newer meter reading than the last one billed.</span>
+    </div>
+    <div class="card-body table-responsive">
+        {% if previews %}
+        <table class="table data-table mb-0">
+            <thead>
+                <tr><th>Lease</th><th>Customer</th><th>Billing</th><th>Last reading</th><th class="numeric">Unbilled copies</th><th class="numeric">Period</th><th></th></tr>
+            </thead>
+            <tbody>
+            {% for row in previews %}
+            <tr>
+                <td><a href="{{ url_for('contracts.detail', contract_id=row.contract.id) }}" class="row-title">{{ row.contract.reference }}</a>
+                    <span class="row-sub">{{ row.contract.machine.asset_tag }}</span></td>
+                <td>{{ row.contract.customer.company_name }}</td>
+                <td>{{ row.contract.billing_type_label }}
+                    <span class="row-sub">
+                        {% if row.contract.billing_type in ('flat','hybrid') %}{{ row.contract.flat_monthly_fee|money }}/mo{% endif %}
+                        {% if row.contract.charges_per_copy %} · {{ row.contract.mono_rate|rate }} mono{% endif %}
+                    </span>
+                </td>
+                <td>{% if row.last_reading %}{{ row.last_reading.reading_date|day }}<span class="row-sub">{{ row.last_reading.total_count|qty }} total</span>{% else %}<span class="text-muted-2">none</span>{% endif %}</td>
+                <td class="numeric">
+                    {% if row.contract.charges_per_copy %}
+                        <span class="meter-pill">{{ row.mono|qty }} mono</span>
+                        {% if row.contract.colour_rate %}<span class="meter-pill">{{ row.colour|qty }} colour</span>{% endif %}
+                    {% else %}<span class="text-muted-2">—</span>{% endif %}
+                </td>
+                <td class="numeric" colspan="2">
+                    <form method="post" class="d-flex gap-2 align-items-center justify-content-end">
+                        {{ csrf() }}
+                        <input type="hidden" name="contract_id" value="{{ row.contract.id }}">
+                        <input type="date" name="period_start" value="{{ period_start }}" class="form-control form-control-sm" style="width:9.5rem">
+                        <input type="date" name="period_end" value="{{ period_end }}" class="form-control form-control-sm" style="width:9.5rem">
+                        <button class="btn btn-sm {{ 'btn-primary' if row.billable else 'btn-light' }}" {% if not row.billable %}disabled title="Record a newer meter reading first"{% endif %}>Create draft</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}{{ empty('No active leases to bill.', url_for('contracts.create'), 'Create a lease') }}{% endif %}
+    </div>
+</div>
+{% endblock %}

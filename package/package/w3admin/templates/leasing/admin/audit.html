@@ -1,0 +1,39 @@
+{% extends 'leasing/layout.html' %}
+{% from 'leasing/_macros.html' import badge, empty %}
+
+{% block page_subtitle %}<p class="page-subtitle">Who created or changed what, and when — most recent 400 entries</p>{% endblock %}
+
+{% block content %}
+<div class="card table-card">
+    <div class="card-body">
+        <form class="row g-2 align-items-end filter-bar mb-3" method="get">
+            <div class="col-md-3">
+                <select name="entity" class="form-control" onchange="this.form.submit()">
+                    <option value="">All record types</option>
+                    {% for e in entities %}<option value="{{ e }}" {% if entity == e %}selected{% endif %}>{{ e }}</option>{% endfor %}
+                </select>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            {% if entries %}
+            <table class="table data-table mb-0">
+                <thead><tr><th>When</th><th>User</th><th>Action</th><th>Record</th><th>Detail</th></tr></thead>
+                <tbody>
+                {% for entry in entries %}
+                <tr>
+                    <td>{{ entry.created_at|datetime }}</td>
+                    <td>{{ entry.user.name if entry.user else 'system' }}
+                        <span class="row-sub">{{ entry.user.role_label if entry.user else '' }}</span></td>
+                    <td>{{ badge(entry.action, 'primary') }}</td>
+                    <td>{{ entry.entity }}{% if entry.entity_id %} #{{ entry.entity_id }}{% endif %}</td>
+                    <td>{{ entry.detail or '—' }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% else %}{{ empty('No audit entries recorded yet.') }}{% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

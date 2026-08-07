@@ -1,0 +1,95 @@
+.add-visit{
+	h3{
+		font-size: 18px;
+		font-weight: 700;
+		margin-bottom: 0;
+		@include custommq($max:100rem) {
+			font-size: 16px;
+		}
+	}
+}
+.sale-card{
+	.card-footer{
+		 .tag{
+			border-bottom-right-radius: 18px;
+			border-top-left-radius: 80px;
+			bottom: 0;
+			cursor: pointer;
+			height: 40px;
+			position: absolute;
+			right: 0;
+			width: 40px;
+			svg{
+				color: #000;
+				height: 22px;
+				left: 0;
+				margin: 0 auto;
+				position: absolute;
+				right: 0;
+				top: 11px;
+				width: 22px;
+			}
+			&.bg-danger-light{
+				svg{
+					transform: rotate(164deg);
+				}
+			}
+			
+		}	
+	}	
+}
+.active-projects{
+	thead{
+		tr{
+			th{
+				padding: 0.75rem 0.9375rem;
+				font-size: 13px;
+				color: #222B40;
+				background: #F0F4F9;
+			}
+		}
+	}
+	tbody{
+		tr{
+			td{
+				padding: 0.45rem 0.8375rem;
+			}
+		}
+	}
+}
+
+
+
+///contacts
+.card-use-box{
+	text-align:center;
+	.crd-bx-img{
+		position: relative;
+		width: 100px;
+        margin: auto;
+		.active{
+			width: 15px;
+			height: 15px;
+			background: $success;
+			border-radius: 50%;
+			left: 5.4rem;
+			position: absolute;
+			bottom: 0.4rem;
+			&.deactive{
+				background:$danger;
+			}
+		}
+		
+		img{
+			border: 7px solid rgba(62, 95, 206, 0.08);
+		}
+	}
+}
+.sales-map{
+	height: 18rem !important;
+}
+@include custommq($max: 1400px , $min:1200px) {
+	.same-card{
+		width:100%;
+	}
+}

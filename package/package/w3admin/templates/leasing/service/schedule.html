@@ -1,0 +1,60 @@
+{% extends 'leasing/layout.html' %}
+{% from 'leasing/_macros.html' import csrf, badge, empty %}
+
+{% block additional_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='w3admin/vendor/fullcalendar-5.11.0/lib/main.css') }}">
+{% endblock %}
+
+{% block page_subtitle %}<p class="page-subtitle">Planned technician visits — colour indicates ticket priority</p>{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xl-4">
+        <div class="card">
+            <div class="card-header"><h4 class="card-title">Waiting to be scheduled</h4></div>
+            <div class="card-body">
+                {% if unscheduled %}
+                {% for ticket in unscheduled %}
+                <div class="border-bottom pb-3 mb-3">
+                    <a href="{{ url_for('service.detail', ticket_id=ticket.id) }}" class="row-title">{{ ticket.reference }}</a>
+                    {{ badge(ticket.priority|title, ticket.priority_class) }}
+                    <span class="row-sub">{{ ticket.customer.company_name }} · {{ ticket.title|truncate(40) }}</span>
+                    <form method="post" action="{{ url_for('service.reschedule', ticket_id=ticket.id) }}" class="d-flex gap-2 mt-2">
+                        {{ csrf() }}
+                        <input type="datetime-local" name="scheduled_for" class="form-control form-control-sm" required>
+                        <button class="btn btn-sm btn-primary">Set</button>
+                    </form>
+                </div>
+                {% endfor %}
+                {% else %}<p class="text-muted-2 mb-0">Every open job has a planned visit.</p>{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-8">
+        <div class="card">
+            <div class="card-body">
+                <div id="serviceCalendar" class="app-fullcalendar"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block additional_js %}
+<script src="{{ url_for('static', filename='w3admin/vendor/moment/moment.min.js') }}"></script>
+<script src="{{ url_for('static', filename='w3admin/vendor/fullcalendar-5.11.0/lib/main.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var calendar = new FullCalendar.Calendar(document.getElementById('serviceCalendar'), {
+        initialView: 'dayGridMonth',
+        height: 720,
+        headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,listWeek' },
+        events: '{{ url_for("service.schedule_events") }}',
+        eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
+        noEventsContent: 'No visits scheduled in this period'
+    });
+    calendar.render();
+});
+</script>
+{% endblock %}

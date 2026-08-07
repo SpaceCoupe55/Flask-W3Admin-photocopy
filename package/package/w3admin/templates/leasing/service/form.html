@@ -1,0 +1,50 @@
+{% extends 'leasing/layout.html' %}
+{% from 'leasing/_macros.html' import csrf, field, select, textarea %}
+
+{% block page_subtitle %}<p class="page-subtitle">Log a fault or maintenance request against a customer's machine</p>{% endblock %}
+
+{% block content %}
+<form method="post">
+    {{ csrf() }}
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header"><h4 class="card-title">Request</h4></div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">{{ select('Customer', 'customer_id', customers|choices, preset_customer, required=True, blank='— select customer —') }}</div>
+                        <div class="col-md-6">{{ select('Machine', 'machine_id', machines|choices, None, blank='— not machine specific —') }}</div>
+                    </div>
+                    {{ field('Summary', 'title', '', required=True, placeholder='e.g. Paper jam in tray 2 / streaks on colour prints') }}
+                    {{ textarea('Details', 'description', '', rows=5, placeholder='Symptoms, error codes, when it started, access instructions…') }}
+                    <div class="row">
+                        <div class="col-md-4">{{ select('Priority', 'priority', priorities|options, 'normal') }}</div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label" for="scheduled_for">Planned visit</label>
+                                <input type="datetime-local" class="form-control" id="scheduled_for" name="scheduled_for">
+                            </div>
+                        </div>
+                        {% if can_assign %}
+                        <div class="col-md-4">{{ select('Assign to technician', 'assigned_to_id', technicians|choices('id', 'name'), None, blank='— assign later —') }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header"><h4 class="card-title">Save</h4></div>
+                <div class="card-body">
+                    <p class="text-muted-2">
+                        {% if can_assign %}Assigning a technician moves the ticket straight to <strong>Assigned</strong>.
+                        {% else %}The ticket is logged as <strong>Open</strong> for a manager to assign.{% endif %}
+                    </p>
+                    <button type="submit" class="btn btn-primary w-100 mb-2">Log ticket</button>
+                    <a href="{{ url_for('service.tickets') }}" class="btn btn-light w-100">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

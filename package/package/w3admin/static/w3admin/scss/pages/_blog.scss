@@ -1,0 +1,254 @@
+.blog-card{
+	h4{
+		font-size: 20px;
+		@include respond ('phone'){
+			font-size:16px;
+		}
+	}
+	img{
+		margin-bottom: 10px;
+		@include respond ('phone'){
+			width: 45px;
+		}
+	}
+	@include transitionMedium;
+	&:hover{
+		transform: translate(0,-10px);
+	}
+}
+@include respond ('phone'){
+	.c-busiess{
+		margin-bottom: 10px;
+	}
+}
+
+.blog-img{
+	position: relative;
+	.blk-img{
+		width: 100%;
+		height: 575px;
+		object-fit: cover;
+		border-radius: $radius;
+		@include respond ('phone'){
+			height: 350px;
+		}
+	}
+	.blk-img2{
+		width: 100%;
+		height: 400px;
+		object-fit: cover;
+		border-radius: $radius;
+		@include respond ('phone'){
+			height: 300px;
+		}
+	}
+	.blog-text{
+		position: absolute;
+		bottom: 0;
+		padding: 20px 15px;
+		h2{
+			font-size: 30px;
+			line-height: 1.1;
+			color: white;
+			font-weight: 600;
+			@include respond ('tab-land'){
+				font-size: 20px;
+			}
+		}
+	}
+	&.style-1{
+		.blk-img{
+			height: 275px;
+		}
+		.blog-text{
+			h2{
+				font-size: 16px;
+				font-weight: 500;
+			}
+		}
+	}
+}
+.blog-post{
+	.post-1{
+		display: flex;
+		align-items: center;
+		padding-bottom: 11px;
+		padding-top: 11px;
+		border-bottom: 1px solid #eee;
+		.custome-avatar{
+			height: 90px;
+            width: 90px;
+			border-radius: 50%;
+			@include respond ('tab-land'){
+				height: 70px;
+                width: 70px;
+			}
+		}
+		.post-data{
+			h4{
+				font-size: 15px;
+				margin-top: 5px;
+				margin-bottom: 7px;
+				@include respond ('phone'){
+					font-size: 14px;
+				}
+				a{
+					color:black;
+				}
+			}
+			span{
+				font-size: 12px;
+				color: var(--text-dark);
+			}
+		}
+		
+	}
+	@include respond ('tab-land'){
+		margin-top: 10px;
+	}
+}
+.small-post{
+	height: 1.275rem !important;
+    width: 1.275rem !important;
+}
+.seconday-post{
+	margin-top: 25px;
+	display: flex;
+	@include respond ('phone'){
+		flex-flow: wrap;
+	}
+	img{
+		width: 160px;
+		height: 130px;
+		border-radius: $radius;
+		margin-right: 18px;
+		object-fit: cover;
+		@include respond ('phone'){
+			width: 100%;
+			height: 200px;
+		}
+	}
+	
+	h4{
+		font-size: 13px;
+        margin-top: 6px;
+	}
+	span{
+		font-size: 12px;
+		color: var(--text-dark);
+	}
+	.post-data{
+		@include respond ('phone'){
+		margin-top: 15px;
+		}
+	}
+}
+.third-post{
+	display: flex;
+	align-items: self-start;
+	margin-bottom: 21px;
+	@include respond ('tab-land'){
+		flex-flow: wrap;
+		align-items:center;
+	}
+	img{
+		width: 300px;
+		height: 180px;
+		border-radius: 0.375rem;
+		margin-right: 20px;
+		object-fit: cover;
+		@include respond ('tab-land'){
+			width: 100%;
+			height: 220px;
+			margin-right: 0px;
+		}
+	}
+	h4{
+		font-size: 15px;
+        margin-top: 6px;
+		a{
+			color:black;
+		}
+	}
+	&.style-1{
+		margin-top: 14px;
+		img{
+			width: 90px;
+            height: 80px;
+			@include respond ('tab-land'){
+				margin-right:10px;
+			}
+		}
+		h4{
+			margin-top: 0;
+			margin-bottom: 0;
+		}
+	}
+	&.style-2{
+		margin-bottom: 15px;
+		border-bottom: 1px solid $border-color;
+		.av-post{
+			height: 40px;
+			width: 40px;
+		}
+		.post-data{
+			margin-bottom: 14px;
+		}
+		@include respond ('phone'){
+			margin-bottom:0;
+		}
+		&:last-child{
+			border-bottom:0;
+		}
+	}
+	.post-data{
+		@include respond ('tab-land'){
+			margin-top: 15px;
+		}
+	}
+	
+}
+.notifiy{
+	background-color: var(--rgba-primary-1);
+	position: relative;
+	margin-top: 40px;
+	.icon-box{
+		position: absolute;
+		top: -12px;
+		left: 46%;
+		@include respond ('phone'){
+			height: 40px;
+			width: 40px;
+			line-height: 40px;
+		}
+	}
+	.notify-data{
+		text-align: center;
+		padding: 20px 0;
+		padding-bottom: 0;
+		span{
+			font-size: 12px;
+		}
+	}
+}
+.c-social{
+	display: flex;
+    margin-top: 20px;
+	li{
+		a{
+			padding: 5px 10px;
+			margin: 0 7px;
+			border-radius: 0.25rem;
+		}
+	}
+}
+.btn-reveal-trigger{
+	.avatar{
+		display: flex;
+		align-items: center;
+	}
+}
+.header-info{
+	margin-left: 8px;
+	margin-top: 8px;
+}

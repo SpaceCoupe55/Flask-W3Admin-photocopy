@@ -1,0 +1,238 @@
+{% extends 'leasing/layout.html' %}
+{% from 'leasing/_macros.html' import stat, badge, invoice_badge, ticket_badge, empty %}
+
+{% block page_subtitle %}<p class="page-subtitle">Business-wide view for {{ current_user.name }} · {{ today|day }}</p>{% endblock %}
+
+{% block page_actions %}
+<a href="{{ url_for('reports.index') }}" class="btn btn-light">Reports</a>
+<a href="{{ url_for('contracts.create') }}" class="btn btn-primary">New Lease</a>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xl-3 col-sm-6 mb-4">{{ stat('Revenue this month', metrics.revenue_mtd|money, 'Payments received since the 1st', 'primary', 'fa-sack-dollar', url_for('billing.payments')) }}</div>
+    <div class="col-xl-3 col-sm-6 mb-4">{{ stat('Outstanding', metrics.outstanding|money, metrics.overdue_count ~ ' overdue · ' ~ metrics.overdue_value|money, 'danger', 'fa-file-invoice-dollar', url_for('billing.invoices', status='outstanding')) }}</div>
+    <div class="col-xl-3 col-sm-6 mb-4">{{ stat('Active leases', metrics.active_contracts, metrics.customers ~ ' active customers', 'warning', 'fa-file-signature', url_for('contracts.index', status='active')) }}</div>
+    <div class="col-xl-3 col-sm-6 mb-4">{{ stat('Fleet utilisation', metrics.utilisation ~ '%', metrics.machines_leased ~ ' of ' ~ metrics.machines_total ~ ' machines on lease', 'info', 'fa-print', url_for('machines.index')) }}</div>
+</div>
+
+<div class="row">
+    <div class="col-xl-8 mb-4">
+        <div class="card h-100">
+            <div class="card-header border-0 pb-0">
+                <div>
+                    <h4 class="card-title mb-1">Billed vs collected</h4>
+                    <small class="text-muted-2">Last six months</small>
+                </div>
+                <a href="{{ url_for('reports.index') }}" class="btn btn-sm btn-light">Full report</a>
+            </div>
+            <div class="card-body">
+                <div id="revenueChart"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header border-0 pb-0"><h4 class="card-title mb-0">Fleet status</h4></div>
+            <div class="card-body">
+                <div id="fleetChart"></div>
+                <ul class="list-unstyled mt-3 mb-0">
+                    {% for key, label in machine_status_labels.items() %}
+                    <li class="d-flex justify-content-between py-1">
+                        <span>{{ label }}</span>
+                        <strong>{{ status_counts.get(key, 0) }}</strong>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-4 col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header border-0 pb-2">
+                <h4 class="card-title mb-0">Overdue invoices</h4>
+                <a href="{{ url_for('billing.invoices', status='overdue') }}" class="btn btn-sm btn-light">All</a>
+            </div>
+            <div class="card-body pt-0">
+                {% if overdue %}
+                <table class="table data-table mb-0">
+                    <tbody>
+                    {% for invoice in overdue %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('billing.detail', invoice_id=invoice.id) }}" class="row-title">{{ invoice.number }}</a>
+                            <span class="row-sub">{{ invoice.customer.company_name }} · {{ invoice.days_overdue }} days late</span>
+                        </td>
+                        <td class="numeric">{{ invoice.balance|money }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}{{ empty('No overdue invoices. Collections are on track.') }}{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header border-0 pb-2">
+                <h4 class="card-title mb-0">Leases expiring</h4>
+                <a href="{{ url_for('contracts.index', view='expiring') }}" class="btn btn-sm btn-light">All</a>
+            </div>
+            <div class="card-body pt-0">
+                {% if expiring %}
+                <table class="table data-table mb-0">
+                    <tbody>
+                    {% for contract in expiring %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('contracts.detail', contract_id=contract.id) }}" class="row-title">{{ contract.reference }}</a>
+                            <span class="row-sub">{{ contract.customer.company_name }} · {{ contract.machine.asset_tag }}</span>
+                        </td>
+                        <td class="numeric">
+                            {% if contract.days_to_expiry < 0 %}{{ badge('Expired', 'danger') }}
+                            {% else %}{{ badge(contract.days_to_expiry ~ 'd left', 'warning') }}{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}{{ empty('No leases expiring in the alert window.') }}{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header border-0 pb-2">
+                <h4 class="card-title mb-0">Open service jobs</h4>
+                <a href="{{ url_for('service.tickets', status='open') }}" class="btn btn-sm btn-light">All</a>
+            </div>
+            <div class="card-body pt-0">
+                {% if tickets %}
+                <table class="table data-table mb-0">
+                    <tbody>
+                    {% for ticket in tickets %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('service.detail', ticket_id=ticket.id) }}" class="row-title">{{ ticket.reference }}</a>
+                            <span class="row-sub">{{ ticket.customer.company_name }} · {{ ticket.title|truncate(34) }}</span>
+                        </td>
+                        <td class="numeric">{{ ticket_badge(ticket) }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}{{ empty('No open service tickets.') }}{% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-4 col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header border-0 pb-2"><h4 class="card-title mb-0">Missed meter readings</h4></div>
+            <div class="card-body pt-0">
+                {% if missed_readings %}
+                <table class="table data-table mb-0">
+                    <tbody>
+                    {% for contract, last in missed_readings %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('contracts.detail', contract_id=contract.id) }}" class="row-title">{{ contract.reference }}</a>
+                            <span class="row-sub">{{ contract.customer.company_name }} · {{ contract.machine.asset_tag }}</span>
+                        </td>
+                        <td class="numeric">{{ badge(last.reading_date|day if last else 'never read', 'danger') }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}{{ empty('All per-copy leases have current readings.') }}{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header border-0 pb-2">
+                <h4 class="card-title mb-0">Low stock</h4>
+                <a href="{{ url_for('inventory.parts', view='low') }}" class="btn btn-sm btn-light">All</a>
+            </div>
+            <div class="card-body pt-0">
+                {% if low_stock %}
+                <table class="table data-table mb-0">
+                    <tbody>
+                    {% for part in low_stock %}
+                    <tr>
+                        <td><span class="row-title">{{ part.name }}</span><span class="row-sub">{{ part.sku }}</span></td>
+                        <td class="numeric">{{ badge(part.quantity_in_stock ~ ' left', 'danger') }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}{{ empty('Stock levels are healthy.') }}{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-lg-12 mb-4">
+        <div class="card h-100">
+            <div class="card-header border-0 pb-2"><h4 class="card-title mb-0">Technician workload</h4></div>
+            <div class="card-body pt-0">
+                {% if workload %}
+                <table class="table data-table mb-0">
+                    <thead><tr><th>Technician</th><th class="numeric">Open</th><th class="numeric">Resolved</th></tr></thead>
+                    <tbody>
+                    {% for row in workload %}
+                    <tr>
+                        <td><span class="row-title">{{ row.technician.name }}</span></td>
+                        <td class="numeric">{{ row.open }}</td>
+                        <td class="numeric">{{ row.resolved }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}{{ empty('No technician accounts yet.', url_for('settings.users'), 'Add a technician') }}{% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block additional_js %}
+<script src="{{ url_for('static', filename='w3admin/vendor/apexchart/apexchart.js') }}"></script>
+<script>
+(function () {
+    var labels = {{ series | map(attribute=0) | list | tojson }};
+    var collected = {{ series | map(attribute=1) | map('float') | list | tojson }};
+    var invoiced = {{ series | map(attribute=2) | map('float') | list | tojson }};
+
+    new ApexCharts(document.querySelector('#revenueChart'), {
+        chart: { type: 'bar', height: 320, toolbar: { show: false } },
+        series: [
+            { name: 'Invoiced', data: invoiced },
+            { name: 'Collected', data: collected }
+        ],
+        colors: ['#c8cfe0', 'var(--primary)'],
+        plotOptions: { bar: { borderRadius: 6, columnWidth: '45%' } },
+        dataLabels: { enabled: false },
+        legend: { position: 'top', horizontalAlign: 'right' },
+        xaxis: { categories: labels },
+        grid: { borderColor: 'rgba(0,0,0,0.06)' }
+    }).render();
+
+    new ApexCharts(document.querySelector('#fleetChart'), {
+        chart: { type: 'donut', height: 240 },
+        series: {{ status_counts.values() | list | tojson }},
+        labels: {{ status_counts.keys() | map('replace', '_', ' ') | map('title') | list | tojson }},
+        colors: ['#17a2b8', '#1fa974', '#ffb800', '#6c757d'],
+        legend: { show: false },
+        dataLabels: { enabled: false }
+    }).render();
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends 'w3admin/elements/layouts/admin.html' %}
+
+
+<!-- Additional Css -->
+{% block additional_css  %}
+<link rel="stylesheet" href="{{ url_for('static', filename=  'w3admin/vendor/lightgallery/css/lightgallery.min.css')}}">
+{% endblock %}
+
+{% block content %}
+
+<!--**********************************
+	Content body start
+***********************************-->
+<div class="outer-body">
+	<div class="inner-body">
+		<div class="content-body">
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="card">
+							<div class="card-header">
+								<h4 class="card-title">Light Gallery</h4>
+							</div>
+							<div class="card-body pb-1">
+								<div id="lightgallery" class="row">
+									<a href="{{ url_for('static', filename='w3admin/images/big/img1.jpg')}}" data-exthumbimage="{{ url_for('static', filename='w3admin/images/big/img1.jpg')}}" data-src="{{ url_for('static', filename='w3admin/images/big/img1.jpg')}}" class="col-lg-3 col-md-6 mb-4">
+										<img src="{{ url_for('static', filename='w3admin/images/big/img1.jpg')}}" alt="" style="width:100%;">
+									</a>
+									<a href="{{ url_for('static', filename='w3admin/images/big/img2.jpg')}}" data-exthumbimage="{{ url_for('static', filename='w3admin/images/big/img2.jpg')}}" data-src="{{ url_for('static', filename='w3admin/images/big/img2.jpg')}}" class="col-lg-3 col-md-6 mb-4">
+										<img src="{{ url_for('static', filename='w3admin/images/big/img2.jpg')}}" alt="" style="width:100%;">
+									</a>
+									<a href="{{ url_for('static', filename='w3admin/images/big/img3.jpg')}}" data-exthumbimage="{{ url_for('static', filename='w3admin/images/big/img3.jpg')}}" data-src="{{ url_for('static', filename='w3admin/images/big/img3.jpg')}}" class="col-lg-3 col-md-6 mb-4">
+										<img src="{{ url_for('static', filename='w3admin/images/big/img3.jpg')}}" alt="" style="width:100%;">
+									</a>
+									<a href="{{ url_for('static', filename='w3admin/images/big/img4.jpg')}}" data-exthumbimage="{{ url_for('static', filename='w3admin/images/big/img4.jpg')}}" data-src="{{ url_for('static', filename='w3admin/images/big/img4.jpg')}}" class="col-lg-3 col-md-6 mb-4">
+										<img src="{{ url_for('static', filename='w3admin/images/big/img4.jpg')}}" alt="" style="width:100%;">
+									</a>
+									<a href="{{ url_for('static', filename='w3admin/images/big/img5.jpg')}}" data-exthumbimage="{{ url_for('static', filename='w3admin/images/big/img5.jpg')}}" data-src="{{ url_for('static', filename='w3admin/images/big/img5.jpg')}}" class="col-lg-3 col-md-6 mb-4">
+										<img src="{{ url_for('static', filename='w3admin/images/big/img5.jpg')}}" alt="" style="width:100%;">
+									</a>
+									<a href="{{ url_for('static', filename='w3admin/images/big/img6.jpg')}}" data-exthumbimage="{{ url_for('static', filename='w3admin/images/big/img6.jpg')}}" data-src="{{ url_for('static', filename='w3admin/images/big/img6.jpg')}}" class="col-lg-3 col-md-6 mb-4">
+										<img src="{{ url_for('static', filename='w3admin/images/big/img6.jpg')}}" alt="" style="width:100%;">
+									</a>
+									<a href="{{ url_for('static', filename='w3admin/images/big/img7.jpg')}}" data-exthumbimage="{{ url_for('static', filename='w3admin/images/big/img7.jpg')}}" data-src="{{ url_for('static', filename='w3admin/images/big/img7.jpg')}}" class="col-lg-3 col-md-6 mb-4">
+										<img src="{{ url_for('static', filename='w3admin/images/big/img7.jpg')}}" alt="" style="width:100%;">
+									</a>
+									<a href="{{ url_for('static', filename='w3admin/images/big/img8.jpg')}}" data-exthumbimage="{{ url_for('static', filename='w3admin/images/big/img8.jpg')}}" data-src="{{ url_for('static', filename='w3admin/images/big/img8.jpg')}}" class="col-lg-3 col-md-6 mb-4">
+										<img src="{{ url_for('static', filename='w3admin/images/big/img8.jpg')}}" alt="" style="width:100%;">
+									</a>
+								</div>
+							</div>
+						</div>
+						<!-- /# card -->
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="footer out-footer">
+			<div class="copyright">
+				<p>Copyright © Developed by <a href="https://dexignzone.com/" target="_blank">DexignZone</a> 2024</p>
+			</div>
+		</div>
+	</div>
+</div>
+<!--**********************************
+	Content body end
+***********************************-->
+{% endblock %}
+
+{% block additional_js  %}
+
+{% endblock %}

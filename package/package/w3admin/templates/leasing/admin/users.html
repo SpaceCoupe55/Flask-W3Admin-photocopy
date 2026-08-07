@@ -1,0 +1,79 @@
+{% extends 'leasing/layout.html' %}
+{% from 'leasing/_macros.html' import csrf, badge, empty %}
+
+{% block page_subtitle %}<p class="page-subtitle">Accounts and the modules each role can reach</p>{% endblock %}
+
+{% block page_actions %}
+<a href="{{ url_for('settings.create_user') }}" class="btn btn-primary">New User</a>
+{% endblock %}
+
+{% block content %}
+<div class="card table-card">
+    <div class="card-body">
+        <form class="row g-2 align-items-end filter-bar mb-3" method="get">
+            <div class="col-md-3">
+                <select name="role" class="form-control" onchange="this.form.submit()">
+                    <option value="">All roles</option>
+                    {% for key, label in roles.items() %}<option value="{{ key }}" {% if role == key %}selected{% endif %}>{{ label }}</option>{% endfor %}
+                </select>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            {% if users %}
+            <table class="table data-table mb-0">
+                <thead><tr><th>User</th><th>Role</th><th>Contact</th><th>Last sign-in</th><th class="numeric">Status</th><th class="numeric">Actions</th></tr></thead>
+                <tbody>
+                {% for user in users %}
+                <tr>
+                    <td><span class="row-title">{{ user.name }}</span><span class="row-sub">{{ user.email }}</span></td>
+                    <td>{{ badge(user.role_label, {'admin':'danger','sales':'primary','technician':'info'}.get(user.role,'secondary')) }}
+                        {% if user.job_title %}<span class="row-sub">{{ user.job_title }}</span>{% endif %}</td>
+                    <td>{{ user.phone or '—' }}</td>
+                    <td>{{ user.last_login_at|datetime if user.last_login_at else 'Never' }}</td>
+                    <td class="numeric">{{ badge('Active', 'success') if user.active else badge('Deactivated', 'secondary') }}</td>
+                    <td class="numeric">
+                        <a href="{{ url_for('settings.edit_user', user_id=user.id) }}" class="btn btn-sm btn-light">Edit</a>
+                        {% if user.id != current_user.id %}
+                        <form method="post" action="{{ url_for('settings.toggle_user', user_id=user.id) }}" class="d-inline"
+                              data-confirm="{{ 'Reactivate' if not user.active else 'Deactivate' }} {{ user.name }}?">
+                            {{ csrf() }}
+                            <button class="btn btn-sm btn-light">{{ 'Reactivate' if not user.active else 'Deactivate' }}</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% else %}{{ empty('No users match this filter.', url_for('settings.create_user'), 'Add a user') }}{% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header"><h4 class="card-title">What each role can do</h4></div>
+    <div class="card-body table-responsive">
+        <table class="table data-table mb-0">
+            <thead><tr><th>Role</th><th>Access</th><th>Typical work</th></tr></thead>
+            <tbody>
+            <tr>
+                <td>{{ badge('Admin', 'danger') }}</td>
+                <td>Every module, plus users, settings and the audit trail</td>
+                <td>Oversee the business, configure the system, review all reports</td>
+            </tr>
+            <tr>
+                <td>{{ badge('Sales Manager', 'primary') }}</td>
+                <td>Customers, machines, leases, invoicing, payments, service, stock, reports</td>
+                <td>Onboard customers, create and renew leases, bill and chase payment</td>
+            </tr>
+            <tr>
+                <td>{{ badge('Technician', 'info') }}</td>
+                <td>Own service tickets, machine and customer look-up, meter readings, parts usage</td>
+                <td>Work assigned jobs, log parts used, record meter readings on site</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends 'w3admin/elements/layouts/admin.html' %}
+
+
+<!-- Additional Css -->
+{% block additional_css  %}
+<link rel="stylesheet" href="{{ url_for('static', filename=  'w3admin/vendor/jqvmap/css/jqvmap.min.css')}}">
+{% endblock %}
+
+{% block content %}
+
+ <!--**********************************
+    Content body start
+***********************************-->
+<div class="outer-body">
+    <div class="inner-body">
+        <div class="content-body">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="card-title">World Map</h4>
+                            </div>
+                            <div class="card-body">
+                                <div id="world-map"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="card-title">USA</h4>
+                            </div>
+                            <div class="card-body">
+                                <div id="usa" style="height: 450px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer out-footer">
+            <div class="copyright">
+                <p>Copyright © Developed by <a href="https://dexignzone.com/" target="_blank">DexignZone</a> 2024</p>
+            </div>
+        </div>
+    </div>
+</div>
+<!--**********************************
+    Content body end
+***********************************-->
+
+{% endblock %}
+
+{% block additional_js  %}
+<script src="{{ url_for('static', filename='w3admin/vendor/jqvmap/js/jquery.vmap.min.js')}}"></script>
+<script src="{{ url_for('static', filename='w3admin/vendor/jqvmap/js/jquery.vmap.world.js')}}"></script>
+<script src="{{ url_for('static', filename='w3admin/vendor/jqvmap/js/jquery.vmap.usa.js')}}"></script>
+<script src="{{ url_for('static', filename='w3admin/js/plugins-init/jqvmap-init.js')}}"></script>
+{% endblock %}

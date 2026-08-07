@@ -1,0 +1,164 @@
+{% extends 'leasing/layout.html' %}
+{% from 'leasing/_macros.html' import csrf, invoice_badge, badge, empty %}
+
+{% block page_subtitle %}
+<p class="page-subtitle">
+    {{ invoice.customer.company_name }}
+    {% if invoice.contract %} · lease {{ invoice.contract.reference }}{% endif %}
+    {% if invoice.period_start %} · period {{ invoice.period_start|day }} → {{ invoice.period_end|day }}{% endif %}
+</p>
+{% endblock %}
+
+{% block page_actions %}
+<a href="{{ url_for('billing.print_invoice', invoice_id=invoice.id) }}" class="btn btn-light" target="_blank">Print / PDF</a>
+{% if invoice.status == 'draft' %}
+<form method="post" action="{{ url_for('billing.send', invoice_id=invoice.id) }}" class="d-inline">
+    {{ csrf() }}<button class="btn btn-primary">Mark as sent</button>
+</form>
+{% elif invoice.is_outstanding %}
+<form method="post" action="{{ url_for('billing.remind', invoice_id=invoice.id) }}" class="d-inline">
+    {{ csrf() }}<button class="btn btn-primary">Log reminder</button>
+</form>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xl-8">
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h4 class="card-title mb-1">{{ invoice.number }}</h4>
+                    <small class="text-muted-2">Issued {{ invoice.issue_date|day }} · due {{ invoice.due_date|day }}
+                        {% if invoice.days_overdue %}<span class="text-danger">({{ invoice.days_overdue }} days overdue)</span>{% endif %}
+                    </small>
+                </div>
+                {{ invoice_badge(invoice) }}
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-sm-6">
+                        <h6 class="text-muted-2">From</h6>
+                        <div><strong>{{ company.company_name }}</strong></div>
+                        <div>{{ company.company_address }}</div>
+                        <div>{{ company.company_email }}</div>
+                        <div>{{ company.company_phone }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <h6 class="text-muted-2">Bill to</h6>
+                        <div><strong>{{ invoice.customer.company_name }}</strong></div>
+                        {% if invoice.customer.contact_name %}<div>Attn: {{ invoice.customer.contact_name }}</div>{% endif %}
+                        <div>{{ invoice.customer.address or '' }}{% if invoice.customer.city %}, {{ invoice.customer.city }}{% endif %}</div>
+                        <div>{{ invoice.customer.email or '' }}</div>
+                        <div>{{ invoice.customer.phone or '' }}</div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table data-table">
+                        <thead><tr><th>#</th><th>Description</th><th class="numeric">Qty</th><th class="numeric">Unit price</th><th class="numeric">Amount</th></tr></thead>
+                        <tbody>
+                        {% for line in invoice.lines %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ line.description }}</td>
+                            <td class="numeric">{{ '%g'|format(line.quantity) }}</td>
+                            <td class="numeric">{{ line.unit_price|rate }}</td>
+                            <td class="numeric">{{ line.amount|money }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        {% if invoice.notes %}<h6 class="text-muted-2">Notes</h6><p>{{ invoice.notes }}</p>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table invoice-total-table mb-0">
+                            <tr><td>Subtotal</td><td class="numeric">{{ invoice.subtotal|money }}</td></tr>
+                            {% if invoice.tax_rate %}<tr><td>Tax ({{ invoice.tax_rate }}%)</td><td class="numeric">{{ invoice.tax_amount|money }}</td></tr>{% endif %}
+                            <tr><td><strong>Total</strong></td><td class="numeric"><strong>{{ invoice.total|money }}</strong></td></tr>
+                            <tr><td>Paid</td><td class="numeric">{{ invoice.amount_paid|money }}</td></tr>
+                            <tr><td><strong>Balance due</strong></td><td class="numeric"><strong class="{{ 'text-danger' if invoice.balance > 0 }}">{{ invoice.balance|money }}</strong></td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card table-card">
+            <div class="card-header"><h4 class="card-title">Payments</h4></div>
+            <div class="card-body table-responsive">
+                {% if invoice.payments %}
+                <table class="table data-table mb-0">
+                    <thead><tr><th>Date</th><th>Method</th><th>Reference</th><th>Recorded by</th><th class="numeric">Amount</th></tr></thead>
+                    <tbody>
+                    {% for payment in invoice.payments %}
+                    <tr>
+                        <td>{{ payment.paid_on|day }}</td>
+                        <td>{{ payment.method_label }}</td>
+                        <td>{{ payment.reference or '—' }}</td>
+                        <td>{{ payment.recorded_by.name if payment.recorded_by else '—' }}</td>
+                        <td class="numeric">{{ payment.amount|money }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}{{ empty('No payments recorded against this invoice yet.') }}{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4">
+        {% if invoice.balance > 0 and invoice.status != 'cancelled' and (current_user.is_admin or current_user.is_sales) %}
+        <div class="card">
+            <div class="card-header"><h4 class="card-title">Record a payment</h4></div>
+            <div class="card-body">
+                <form method="post" action="{{ url_for('billing.record_payment', invoice_id=invoice.id) }}">
+                    {{ csrf() }}
+                    <div class="mb-3">
+                        <label class="form-label" for="amount">Amount</label>
+                        <input type="number" step="0.01" min="0.01" max="{{ invoice.balance }}" class="form-control" id="amount" name="amount" value="{{ invoice.balance }}" required>
+                        <small class="text-muted-2">Outstanding balance: {{ invoice.balance|money }}</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="paid_on">Date received</label>
+                        <input type="date" class="form-control" id="paid_on" name="paid_on" value="{{ today }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="method">Method</label>
+                        <select class="form-control" id="method" name="method">
+                            {% for m in methods %}<option value="{{ m }}">{{ method_labels[m] }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="reference">Reference</label>
+                        <input type="text" class="form-control" id="reference" name="reference" placeholder="Momo / bank reference">
+                    </div>
+                    <button class="btn btn-primary w-100">Record payment</button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="card">
+            <div class="card-header"><h4 class="card-title">Trail</h4></div>
+            <div class="card-body">
+                <dl class="detail-list">
+                    <dt>Created</dt><dd>{{ invoice.created_at|datetime }}{% if invoice.created_by %} by {{ invoice.created_by.name }}{% endif %}</dd>
+                    <dt>Sent</dt><dd>{{ invoice.sent_at|datetime if invoice.sent_at else 'Not sent yet' }}</dd>
+                    <dt>Reminders</dt><dd>{{ invoice.reminder_count }}{% if invoice.last_reminder_at %} · last {{ invoice.last_reminder_at|datetime }}{% endif %}</dd>
+                    <dt>Last updated</dt><dd>{{ invoice.updated_at|datetime }}</dd>
+                </dl>
+                {% if invoice.status in ('draft', 'sent') and not invoice.payments and (current_user.is_admin or current_user.is_sales) %}
+                <form method="post" action="{{ url_for('billing.cancel', invoice_id=invoice.id) }}" data-confirm="Cancel invoice {{ invoice.number }}?">
+                    {{ csrf() }}<button class="btn btn-light w-100">Cancel invoice</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

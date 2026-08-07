@@ -1,0 +1,52 @@
+{% extends 'leasing/layout.html' %}
+{% from 'leasing/_macros.html' import csrf, field %}
+
+{% block page_subtitle %}<p class="page-subtitle">Company details on invoices, billing defaults and alert thresholds</p>{% endblock %}
+
+{% block content %}
+<form method="post">
+    {{ csrf() }}
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header"><h4 class="card-title">Company</h4></div>
+                <div class="card-body">
+                    {{ field('Business name', 'company_name', settings.company_name, required=True, help='Shown in the sidebar and on every invoice.') }}
+                    {{ field('Address', 'company_address', settings.company_address) }}
+                    {{ field('Billing email', 'company_email', settings.company_email, type='email') }}
+                    {{ field('Phone', 'company_phone', settings.company_phone) }}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header"><h4 class="card-title">Billing defaults</h4></div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">{{ field('Currency symbol', 'currency_symbol', settings.currency_symbol, help='e.g. "GHS " or "₵"') }}</div>
+                        <div class="col-md-6">{{ field('Invoice prefix', 'invoice_prefix', settings.invoice_prefix, help='Numbers become PREFIX-YYYY-0001.') }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">{{ field('Default tax rate %', 'default_tax_rate', settings.default_tax_rate, type='number', attrs='step="0.01" min="0"') }}</div>
+                        <div class="col-md-4">{{ field('Payment terms (days)', 'payment_terms_days', settings.payment_terms_days, type='number', attrs='min="0"') }}</div>
+                        <div class="col-md-4">{{ field('Renewal alert (days)', 'contract_alert_days', settings.contract_alert_days, type='number', attrs='min="1"', help='Lead time on expiry warnings.') }}</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save settings</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h4 class="card-title">Not yet configured</h4></div>
+                <div class="card-body">
+                    <p class="text-muted-2 mb-2">These items were left open in the requirements and are handled in-app for now:</p>
+                    <ul class="mb-0 text-muted-2">
+                        <li>Payment gateway integration — payments are recorded manually with a reference.</li>
+                        <li>Customer self-service portal — the system is staff-only.</li>
+                        <li>Email / SMS delivery — reminders and invoice sends are logged in-app with a timestamp.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

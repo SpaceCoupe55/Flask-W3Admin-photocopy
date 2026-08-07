@@ -1,0 +1,87 @@
+<div class="header">
+	<div class="header-content">
+		<nav class="navbar navbar-expand">
+			<div class="collapse navbar-collapse justify-content-between">
+				<div class="header-left">
+					<form action="{{ url_for('customers.index') }}" method="get">
+						<div class="input-group search-area">
+							<span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+							<input type="text" name="q" class="form-control" placeholder="Search customers…">
+						</div>
+					</form>
+				</div>
+				<ul class="navbar-nav header-right">
+
+					<li class="nav-item dropdown notification_dropdown">
+						<a class="nav-link" href="javascript:void(0);" role="button" data-bs-toggle="dropdown" title="Alerts">
+							<i class="fa-solid fa-bell fs-5"></i>
+							{% if alerts %}<span class="badge light text-bg-danger alert-count">{{ alerts|length }}</span>{% endif %}
+						</a>
+						<div class="dropdown-menu dropdown-menu-end">
+							<div class="widget-media dz-scroll p-3 pt-0" style="max-height:360px;">
+								<h6 class="pt-3 mb-2">Needs attention</h6>
+								<ul class="timeline">
+									{% for alert in alerts %}
+									<li>
+										<div class="timeline-panel">
+											<div class="media me-2 media-{{ alert.tone }}"><i class="fa-solid fa-circle-exclamation"></i></div>
+											<div class="media-body">
+												<h6 class="mb-1"><a href="{{ alert.url }}">{{ alert.title }}</a></h6>
+												<small class="d-block">{{ alert.meta }}</small>
+											</div>
+										</div>
+									</li>
+									{% else %}
+									<li><div class="timeline-panel"><div class="media-body"><h6 class="mb-1">Nothing needs attention</h6><small class="d-block">No overdue invoices, expiring leases or stock warnings.</small></div></div></li>
+									{% endfor %}
+								</ul>
+							</div>
+						</div>
+					</li>
+
+					{% if current_user.is_technician %}
+					<li class="nav-item align-items-center header-border">
+						<a href="{{ url_for('service.tickets', status='open') }}" class="btn btn-primary">My Jobs</a>
+					</li>
+					{% else %}
+					<li class="nav-item align-items-center header-border">
+						<a href="{{ url_for('billing.generate') }}" class="btn btn-primary">Generate Invoices</a>
+					</li>
+					{% endif %}
+
+					<li class="nav-item ps-3">
+						<div class="header-profile2">
+							<a class="nav-link" href="javascript:void(0);" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+								<div class="header-info2 d-flex align-items-center">
+									<div class="header-media"><span class="avatar avatar-lg rounded-circle user-initials">{{ current_user.initials }}</span></div>
+									<div class="header-info">
+										<h6>{{ current_user.name }}</h6>
+										<p>{{ current_user.role_label }}</p>
+									</div>
+								</div>
+							</a>
+							<div class="profile-box">
+								<div class="products">
+									<div class="border-img"><span class="avatar rounded-circle user-initials">{{ current_user.initials }}</span></div>
+									<div class="ms-3">
+										<h6 class="mb-0">{{ current_user.name }}</h6>
+										<span class="d-block mb-1">{{ current_user.email }}</span>
+										<span class="badge border-0 rounded">{{ current_user.role_label }}</span>
+									</div>
+								</div>
+								<div class="account-setting">
+									<a href="{{ url_for('auth.profile') }}" class="ai-icon"><span class="ms-2">My Profile</span></a>
+									{% if current_user.is_admin %}
+									<a href="{{ url_for('settings.system_settings') }}" class="ai-icon"><span class="ms-2">System Settings</span></a>
+									<a href="{{ url_for('settings.audit_log') }}" class="ai-icon"><span class="ms-2">Audit Trail</span></a>
+									{% endif %}
+									<a href="{{ url_for('auth.logout') }}" class="ai-icon"><span class="ms-2">Sign out</span></a>
+								</div>
+							</div>
+						</div>
+					</li>
+				</ul>
+			</div>
+		</nav>
+	</div>
+</div>

@@ -1,0 +1,67 @@
+{% extends 'leasing/layout.html' %}
+{% from 'leasing/_macros.html' import csrf, field, select, textarea %}
+
+{% block content %}
+<form method="post">
+    {{ csrf() }}
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header"><h4 class="card-title">Parties &amp; term</h4></div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">{{ select('Customer', 'customer_id', customers|choices, contract.customer_id, required=True, blank='— select customer —') }}</div>
+                        <div class="col-md-6">
+                            {{ select('Machine', 'machine_id', machines|choices, contract.machine_id, required=True, blank='— select machine —',
+                                      help='Only machines currently in stock are listed.') }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">{{ field('Start date', 'start_date', contract.start_date, type='date', required=True) }}</div>
+                        <div class="col-md-4">{{ field('End date', 'end_date', contract.end_date, type='date', required=True) }}</div>
+                        <div class="col-md-4">{{ field('Billing day of month', 'billing_day', contract.billing_day or 1, type='number', attrs='min="1" max="28"') }}</div>
+                    </div>
+                    {% if contract.id %}
+                    <div class="row"><div class="col-md-4">{{ select('Status', 'status', statuses|options, contract.status) }}</div></div>
+                    {% endif %}
+                    {{ textarea('Notes', 'notes', contract.notes, rows=3, placeholder='Special terms, delivery arrangements, agreed SLA…') }}
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h4 class="card-title">Billing terms</h4></div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">{{ select('Billing type', 'billing_type', billing_types|options(billing_labels), contract.billing_type, required=True) }}</div>
+                        <div class="col-md-6">{{ field('Flat monthly fee', 'flat_monthly_fee', contract.flat_monthly_fee, type='number', attrs='step="0.01" min="0"', help='Used by flat and hybrid leases.') }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">{{ field('Mono rate / copy', 'mono_rate', contract.mono_rate, type='number', attrs='step="0.0001" min="0"') }}</div>
+                        <div class="col-md-3">{{ field('Colour rate / copy', 'colour_rate', contract.colour_rate, type='number', attrs='step="0.0001" min="0"') }}</div>
+                        <div class="col-md-3">{{ field('Included mono copies', 'included_mono', contract.included_mono or 0, type='number', attrs='min="0"') }}</div>
+                        <div class="col-md-3">{{ field('Included colour copies', 'included_colour', contract.included_colour or 0, type='number', attrs='min="0"') }}</div>
+                    </div>
+                    <p class="text-muted-2 mb-0">
+                        Per-copy charges are calculated from the difference between the last billed meter reading
+                        and the newest one, less any included allowance.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header"><h4 class="card-title">{{ contract.reference or 'New contract' }}</h4></div>
+                <div class="card-body">
+                    <p class="text-muted-2">
+                        Saving a new lease marks the machine as <strong>Leased</strong> and links it to the
+                        customer record automatically.
+                    </p>
+                    <button type="submit" class="btn btn-primary w-100 mb-2">Save contract</button>
+                    <a href="{{ url_for('contracts.detail', contract_id=contract.id) if contract.id else url_for('contracts.index') }}" class="btn btn-light w-100">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

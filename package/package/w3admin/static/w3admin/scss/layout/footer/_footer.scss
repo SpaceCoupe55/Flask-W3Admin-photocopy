@@ -1,0 +1,30 @@
+
+
+
+.footer {
+    padding-right:0;
+    font-size: 0.813rem;
+	font-weight:400;
+    margin-top: 1rem;
+	border-top: 1px solid rgba(0,0,0,0.1);
+    .copyright {
+        padding: 0.9375rem;
+        p {
+            text-align: center;
+            margin: 0;
+			color:#918f8f;
+        }
+        a{
+            color:var(--primary);
+        }
+    }
+	&.home-footer{
+		padding-right: 19.5rem;
+		@include respond ('laptop'){
+			padding-right: 0;
+		} 
+	}
+}
+
+
+

@@ -1,0 +1,64 @@
+{% extends 'leasing/layout.html' %}
+{% from 'leasing/_macros.html' import invoice_badge, empty %}
+
+{% block page_subtitle %}
+<p class="page-subtitle">{{ totals.count }} invoice{{ '' if totals.count == 1 else 's' }} · billed {{ totals.billed|money }} · collected {{ totals.paid|money }} · outstanding {{ totals.due|money }}</p>
+{% endblock %}
+
+{% block page_actions %}
+<a href="{{ url_for('reports.overdue_csv') }}" class="btn btn-light">Overdue CSV</a>
+<a href="{{ url_for('billing.create_manual') }}" class="btn btn-light">Manual Invoice</a>
+<a href="{{ url_for('billing.generate') }}" class="btn btn-primary">Generate from Leases</a>
+{% endblock %}
+
+{% block content %}
+<div class="card table-card">
+    <div class="card-body">
+        <form class="row g-2 align-items-end filter-bar mb-3" method="get">
+            <div class="col-md-4">
+                <div class="input-group search-area">
+                    <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                    <input type="text" name="q" value="{{ search }}" class="form-control" placeholder="Invoice number or customer…">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select name="status" class="form-control">
+                    <option value="">All statuses</option>
+                    <option value="outstanding" {% if status == 'outstanding' %}selected{% endif %}>Outstanding (unpaid)</option>
+                    {% for s in statuses %}<option value="{{ s }}" {% if status == s %}selected{% endif %}>{{ invoice_status_labels[s] }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-primary" type="submit">Filter</button>
+                <a href="{{ url_for('billing.invoices') }}" class="btn btn-light">Reset</a>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            {% if invoices %}
+            <table class="table data-table mb-0">
+                <thead>
+                    <tr><th>Invoice</th><th>Customer</th><th>Lease</th><th>Issued</th><th>Due</th>
+                        <th class="numeric">Total</th><th class="numeric">Paid</th><th class="numeric">Balance</th><th class="numeric">Status</th></tr>
+                </thead>
+                <tbody>
+                {% for invoice in invoices %}
+                <tr>
+                    <td><a href="{{ url_for('billing.detail', invoice_id=invoice.id) }}" class="row-title">{{ invoice.number }}</a></td>
+                    <td><a href="{{ url_for('customers.detail', customer_id=invoice.customer_id) }}">{{ invoice.customer.company_name }}</a></td>
+                    <td>{% if invoice.contract %}<a href="{{ url_for('contracts.detail', contract_id=invoice.contract_id) }}">{{ invoice.contract.reference }}</a>{% else %}<span class="text-muted-2">Manual</span>{% endif %}</td>
+                    <td>{{ invoice.issue_date|day }}</td>
+                    <td>{{ invoice.due_date|day }}{% if invoice.days_overdue %}<span class="row-sub text-danger">{{ invoice.days_overdue }}d late</span>{% endif %}</td>
+                    <td class="numeric">{{ invoice.total|money }}</td>
+                    <td class="numeric">{{ invoice.amount_paid|money }}</td>
+                    <td class="numeric">{{ invoice.balance|money }}</td>
+                    <td class="numeric">{{ invoice_badge(invoice) }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% else %}{{ empty('No invoices match this filter.', url_for('billing.generate'), 'Generate invoices') }}{% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

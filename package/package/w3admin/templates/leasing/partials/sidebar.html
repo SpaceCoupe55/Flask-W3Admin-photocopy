@@ -1,0 +1,110 @@
+{% set path = request.path %}
+{% set is_management = current_user.is_admin or current_user.is_sales %}
+
+<div class="deznav">
+    <div class="deznav-scroll">
+        <ul class="metismenu" id="menu">
+
+            <li><a href="{{ url_for('dashboard.home') }}" class="{{ 'mm-active' if path in ('/', '/dashboard') }}">
+                <div class="menu-icon"><i class="fa-solid fa-gauge-high"></i></div>
+                <span class="nav-text">Dashboard</span>
+            </a></li>
+
+            <li class="menu-title">OPERATIONS</li>
+
+            <li><a href="{{ url_for('customers.index') }}" class="{{ 'mm-active' if path.startswith('/customers') }}">
+                <div class="menu-icon"><i class="fa-solid fa-building-user"></i></div>
+                <span class="nav-text">Customers</span>
+            </a></li>
+
+            <li><a class="has-arrow {{ 'mm-active' if path.startswith('/machines') }}" href="javascript:void(0);" aria-expanded="false">
+                <div class="menu-icon"><i class="fa-solid fa-print"></i></div>
+                <span class="nav-text">Machines</span>
+                </a>
+                <ul aria-expanded="false">
+                    <li><a href="{{ url_for('machines.index') }}">Equipment Inventory</a></li>
+                    {% if is_management %}<li><a href="{{ url_for('machines.create') }}">Register Machine</a></li>{% endif %}
+                    <li><a href="{{ url_for('machines.readings') }}">Meter Readings</a></li>
+                </ul>
+            </li>
+
+            {% if is_management %}
+            <li><a class="has-arrow {{ 'mm-active' if path.startswith('/contracts') }}" href="javascript:void(0);" aria-expanded="false">
+                <div class="menu-icon"><i class="fa-solid fa-file-signature"></i></div>
+                <span class="nav-text">Leases</span>
+                </a>
+                <ul aria-expanded="false">
+                    <li><a href="{{ url_for('contracts.index') }}">All Contracts</a></li>
+                    <li><a href="{{ url_for('contracts.index', view='expiring') }}">Expiring Soon</a></li>
+                    <li><a href="{{ url_for('contracts.create') }}">New Lease</a></li>
+                </ul>
+            </li>
+
+            <li><a class="has-arrow {{ 'mm-active' if path.startswith('/billing') }}" href="javascript:void(0);" aria-expanded="false">
+                <div class="menu-icon"><i class="fa-solid fa-file-invoice"></i></div>
+                <span class="nav-text">Billing</span>
+                </a>
+                <ul aria-expanded="false">
+                    <li><a href="{{ url_for('billing.invoices') }}">Invoices</a></li>
+                    <li><a href="{{ url_for('billing.invoices', status='outstanding') }}">Outstanding</a></li>
+                    <li><a href="{{ url_for('billing.generate') }}">Generate from Leases</a></li>
+                    <li><a href="{{ url_for('billing.create_manual') }}">Manual Invoice</a></li>
+                    <li><a href="{{ url_for('billing.payments') }}">Payments Received</a></li>
+                </ul>
+            </li>
+            {% endif %}
+
+            <li><a class="has-arrow {{ 'mm-active' if path.startswith('/service') }}" href="javascript:void(0);" aria-expanded="false">
+                <div class="menu-icon"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+                <span class="nav-text">Service</span>
+                </a>
+                <ul aria-expanded="false">
+                    <li><a href="{{ url_for('service.tickets') }}">{{ 'My Tickets' if current_user.is_technician else 'All Tickets' }}</a></li>
+                    <li><a href="{{ url_for('service.tickets', status='open') }}">Open Jobs</a></li>
+                    <li><a href="{{ url_for('service.schedule') }}">Schedule</a></li>
+                    <li><a href="{{ url_for('service.create') }}">Log Request</a></li>
+                </ul>
+            </li>
+
+            <li><a class="has-arrow {{ 'mm-active' if path.startswith('/inventory') }}" href="javascript:void(0);" aria-expanded="false">
+                <div class="menu-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
+                <span class="nav-text">Consumables</span>
+                </a>
+                <ul aria-expanded="false">
+                    <li><a href="{{ url_for('inventory.parts') }}">Parts &amp; Toner</a></li>
+                    <li><a href="{{ url_for('inventory.parts', view='low') }}">Low Stock</a></li>
+                    <li><a href="{{ url_for('inventory.usage') }}">Usage Log</a></li>
+                </ul>
+            </li>
+
+            {% if is_management %}
+            <li class="menu-title">INSIGHT</li>
+            <li><a href="{{ url_for('reports.index') }}" class="{{ 'mm-active' if path.startswith('/reports') }}">
+                <div class="menu-icon"><i class="fa-solid fa-chart-column"></i></div>
+                <span class="nav-text">Reports</span>
+            </a></li>
+            {% endif %}
+
+            {% if current_user.is_admin %}
+            <li class="menu-title">ADMINISTRATION</li>
+            <li><a class="has-arrow {{ 'mm-active' if path.startswith('/admin') }}" href="javascript:void(0);" aria-expanded="false">
+                <div class="menu-icon"><i class="fa-solid fa-user-shield"></i></div>
+                <span class="nav-text">System</span>
+                </a>
+                <ul aria-expanded="false">
+                    <li><a href="{{ url_for('settings.users') }}">Users &amp; Roles</a></li>
+                    <li><a href="{{ url_for('settings.system_settings') }}">Settings</a></li>
+                    <li><a href="{{ url_for('settings.audit_log') }}">Audit Trail</a></li>
+                </ul>
+            </li>
+            {% endif %}
+        </ul>
+
+        <div class="switch-btn">
+            <a href="{{ url_for('auth.logout') }}">
+                <i class="fa-solid fa-power-off"></i>
+                <span>Sign out</span>
+            </a>
+        </div>
+    </div>
+</div>

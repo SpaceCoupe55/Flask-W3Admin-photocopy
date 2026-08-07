@@ -1,0 +1,16 @@
+<div class="nav-header">
+    <a href="{{ url_for('dashboard.home') }}" class="brand-logo">
+        <svg class="logo-abbr" width="45" height="45" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="48" height="48" rx="14" fill="white"/>
+            <path d="M13 17a3 3 0 0 1 3-3h16a3 3 0 0 1 3 3v5H13v-5Z" fill="var(--primary)"/>
+            <path d="M10 22h28a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3v-4H13v4h-3a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z" fill="var(--primary)" opacity="0.55"/>
+            <path d="M15 31h18v7H15z" fill="var(--primary)"/>
+        </svg>
+        <span class="brand-title copytrack-brand">{{ app_name }}</span>
+    </a>
+    <div class="nav-control">
+        <div class="hamburger">
+            <span class="line"></span><span class="line"></span><span class="line"></span>
+        </div>
+    </div>
+</div>

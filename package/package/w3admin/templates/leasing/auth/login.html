@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="robots" content="noindex, nofollow">
+	<title>Sign in · {{ app_name }}</title>
+	<link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='w3admin/images/favicon.png') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='w3admin/css/style.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='w3admin/css/leasing.css') }}">
+</head>
+<body class="vh-100">
+	<div class="authincation h-100">
+		<div class="container-fluid h-100">
+			<div class="row h-100">
+				<div class="col-lg-6 col-md-12 col-sm-12 mx-auto align-self-center">
+					<div class="login-form">
+						<div class="text-center">
+							<h3 class="title">Sign In</h3>
+							<p>{{ app_name }} — leasing management</p>
+						</div>
+
+						{% include 'leasing/partials/flash.html' %}
+
+						<form method="post" action="{{ url_for('auth.login', next=request.args.get('next')) }}">
+							<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+							<div class="mb-4">
+								<label class="mb-1 text-dark" for="email">Email</label>
+								<input type="email" id="email" name="email" class="form-control" autocomplete="username" required autofocus>
+							</div>
+							<div class="mb-4 position-relative">
+								<label class="mb-1 text-dark" for="dz-password">Password</label>
+								<input type="password" id="dz-password" name="password" class="form-control" autocomplete="current-password" required>
+								<span class="show-pass eye">
+									<i class="fa fa-eye-slash"></i>
+									<i class="fa fa-eye"></i>
+								</span>
+							</div>
+							<div class="form-row d-flex justify-content-between mt-4 mb-2">
+								<div class="mb-4">
+									<div class="form-check custom-checkbox mb-3">
+										<input type="checkbox" class="form-check-input" id="remember" name="remember">
+										<label class="form-check-label mt-1" for="remember">Keep me signed in</label>
+									</div>
+								</div>
+							</div>
+							<div class="text-center mb-4">
+								<button type="submit" class="btn btn-primary btn-block">Sign In</button>
+							</div>
+						</form>
+
+						<div class="login-role-hint">
+							<strong class="d-block mb-1">Demo accounts</strong>
+							Admin — <code>admin@copytrack.example</code><br>
+							Sales Manager — <code>sales@copytrack.example</code><br>
+							Technician — <code>tech@copytrack.example</code><br>
+							<span class="d-block mt-1">Password for all three: <code>Password123</code></span>
+						</div>
+					</div>
+				</div>
+				<div class="col-xl-6 col-lg-6">
+					<div class="pages-left h-100">
+						<div class="login-content">
+							<h2 class="text-white">{{ app_name }}</h2>
+							<p>Leases, meter billing, service tickets and consumables stock — one place for the whole copier operation.</p>
+						</div>
+						<div class="login-media text-center">
+							<img src="{{ url_for('static', filename='w3admin/images/login.png') }}" alt="">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script src="{{ url_for('static', filename='w3admin/vendor/global/global.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='w3admin/js/custom.js') }}"></script>
+</body>
+</html>

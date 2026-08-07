@@ -1,0 +1,150 @@
+{% extends 'w3admin/elements/layouts/admin.html' %}
+
+
+<!-- Additional Css -->
+{% block additional_css  %}
+
+{% endblock %}
+
+
+{% block content %}
+
+<!--**********************************
+    Content body start
+***********************************-->
+<div class="outer-body">
+    <div class="inner-body">
+        <div class="content-body">
+            <div class="container-fluid">
+                <!-- row -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="row">
+                            <div class="col-lg-6 col-sm-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h4 class="card-title">Bar Chart</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="flotBar1" class="flot-chart"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-sm-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h4 class="card-title">Bar Chart</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="flotBar2" class="flot-chart"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-sm-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h4 class="card-title">Line Chart</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="flotLine1" class="flot-chart"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-sm-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h4 class="card-title">Line Chart</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="flotLine2" class="flot-chart"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-sm-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h4 class="card-title">Line Chart</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="flotLine3" class="flot-chart"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-sm-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h4 class="card-title">Area Chart</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="flotArea1" class="flot-chart"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-sm-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h4 class="card-title">Area Chart</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="flotArea2" class="flot-chart"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-sm-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h4 class="card-title">Realtime Chart</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="flotRealtime1" class="flot-chart"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-sm-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h4 class="card-title">Realtime Chart</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="flotRealtime2" class="flot-chart"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-sm-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h4 class="card-title">Stacking Chart</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="flotRealtime3" class="flot-chart"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer out-footer">
+            <div class="copyright">
+                <p>Copyright © Developed by <a href="https://dexignzone.com/" target="_blank">DexignZone</a> 2024</p>
+            </div>
+        </div>
+    </div>
+    
+</div>
+<!--**********************************
+    Content body end
+***********************************-->
+
+{% endblock %}
+
+{% block additional_js  %}
+<script src="{{ url_for('static', filename='w3admin/vendor/chart.js/Chart.bundle.min.js')}}"></script>
+<script src="{{ url_for('static', filename='w3admin/vendor/apexchart/apexchart.js')}}"></script>
+<script src="{{ url_for('static', filename='w3admin/vendor/flot/jquery.flot.js')}}"></script>
+<script src="{{ url_for('static', filename='w3admin/vendor/flot/jquery.flot.pie.js')}}"></script>
+<script src="{{ url_for('static', filename='w3admin/vendor/flot/jquery.flot.resize.js')}}"></script>
+<script src="{{ url_for('static', filename='w3admin/vendor/flot-spline/jquery.flot.spline.min.js')}}"></script>
+<script src="{{ url_for('static', filename='w3admin/js/plugins-init/flot-init.js')}}"></script>
+{% endblock %}
