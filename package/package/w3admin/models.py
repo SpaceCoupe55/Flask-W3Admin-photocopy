@@ -682,7 +682,7 @@ class Setting(db.Model):
     value = db.Column(db.String(500))
 
     DEFAULTS = {
-        "company_name": "CopyTrack Business Systems",
+        "company_name": "Zohar",
         "company_address": "12 Ring Road East, Accra",
         "company_email": "billing@copytrack.example",
         "company_phone": "+233 30 000 0000",

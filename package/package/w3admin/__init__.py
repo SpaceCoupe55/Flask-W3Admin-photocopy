@@ -16,24 +16,70 @@ from flask_login import current_user
 from .extensions import csrf, db, login_manager
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-INSTANCE_DIR = os.path.join(os.path.dirname(BASE_DIR), "instance")
+PROJECT_ROOT = os.path.dirname(BASE_DIR)
+INSTANCE_DIR = os.path.join(PROJECT_ROOT, "instance")
+# Static assets live in the project-root ``public/`` directory so that on
+# Vercel they are served directly from the CDN (files under ``public/`` are
+# published at the site root) instead of through the Python function. Locally,
+# Flask serves them from the same folder, keeping ``/static/...`` URLs identical
+# in both environments.
+STATIC_DIR = os.path.join(PROJECT_ROOT, "public", "static")
 
 
 def create_app(config=None):
-    app = Flask(__name__, instance_path=INSTANCE_DIR)
-    os.makedirs(app.instance_path, exist_ok=True)
+    app = Flask(
+        __name__,
+        instance_path=INSTANCE_DIR,
+        static_folder=STATIC_DIR,
+        static_url_path="/static",
+    )
+    # The instance dir is only needed for the local SQLite fallback. On a
+    # read-only serverless filesystem (Vercel) creating it would raise, so treat
+    # failure as non-fatal — production uses Postgres and writes nothing to disk.
+    try:
+        os.makedirs(app.instance_path, exist_ok=True)
+    except OSError:
+        pass
+
+    # Vercel sets VERCEL=1 automatically; treat that (or an explicit
+    # FLASK_ENV=production) as the signal to enforce production hardening.
+    is_production = (
+        os.environ.get("VERCEL") == "1"
+        or os.environ.get("FLASK_ENV") == "production"
+    )
+
+    database_url = os.environ.get("DATABASE_URL")
+    if database_url and database_url.startswith("postgres://"):
+        # SQLAlchemy 2.0 only accepts the postgresql:// scheme.
+        database_url = database_url.replace("postgres://", "postgresql://", 1)
+    if not database_url:
+        database_url = "sqlite:///" + os.path.join(app.instance_path, "leasing.db")
+
+    secret_key = os.environ.get("SECRET_KEY")
+    if not secret_key:
+        if is_production:
+            raise RuntimeError(
+                "SECRET_KEY environment variable must be set in production."
+            )
+        secret_key = "dev-only-insecure-secret-change-me"
 
     app.config.update(
-        SECRET_KEY=os.environ.get("SECRET_KEY", "oJew_hVN9dv46ZkLReHCVw"),
-        SQLALCHEMY_DATABASE_URI=os.environ.get(
-            "DATABASE_URL",
-            "sqlite:///" + os.path.join(app.instance_path, "leasing.db"),
-        ),
+        SECRET_KEY=secret_key,
+        SQLALCHEMY_DATABASE_URI=database_url,
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         SESSION_COOKIE_HTTPONLY=True,
         SESSION_COOKIE_SAMESITE="Lax",
+        SESSION_COOKIE_SECURE=is_production,
         SEED_DEMO_DATA=os.environ.get("SEED_DEMO_DATA", "1") == "1",
     )
+
+    if is_production and database_url.startswith("postgresql"):
+        # Serverless invocations are short-lived and sit behind Supabase's
+        # transaction pooler, so don't keep a client-side connection pool.
+        from sqlalchemy.pool import NullPool
+
+        app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"poolclass": NullPool}
+
     if config:
         app.config.update(config)
 
@@ -90,7 +136,7 @@ def _register_template_helpers(app):
         if current_user.is_authenticated:
             alerts = alert_feed(current_user)
         return {
-            "app_name": settings.get("company_name", "CopyTrack"),
+            "app_name": settings.get("company_name", "Zohar"),
             "settings": settings,
             "alerts": alerts,
             "today": date.today(),
