@@ -150,7 +150,7 @@ new ApexCharts(document.querySelector('#revenueChart'), {
         { name: 'Invoiced', type: 'column', data: {{ series | map(attribute=2) | map('float') | list | tojson }} },
         { name: 'Collected', type: 'line', data: {{ series | map(attribute=1) | map('float') | list | tojson }} }
     ],
-    colors: ['#c8cfe0', 'var(--primary)'],
+    colors: ['#c8cfe0', '#A0CF1A'],
     plotOptions: { bar: { borderRadius: 6, columnWidth: '45%' } },
     dataLabels: { enabled: false },
     legend: { position: 'top', horizontalAlign: 'right' },
